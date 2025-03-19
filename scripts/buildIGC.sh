@@ -13,7 +13,7 @@ set -e
 # LLVM_VERSION     supported value [ 10, 11, 12, 13, 14, 15]                                 default 11
 # COMPILER         supported value [ gcc, clang ]                                            default gcc
 # OWN_CMAKE_FLAGS  not suported but can be use as WA (each flag should be with -D prefix)    default empty
-# example run:     UBUNTU_VERSION=ubuntu2004 LLVM_VERSION=11 COMPILER=gcc sh /home/buildIGC.sh
+# Example Run:     UBUNTU_VERSION=ubuntu2204 LLVM_VERSION=14 COMPILER=gcc sh /home/buildIGC.sh
 
 echo "====================BUILD IGC========================="
 echo "[Build Status] build script started"
