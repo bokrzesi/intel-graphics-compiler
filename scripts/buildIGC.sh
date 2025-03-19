@@ -2,24 +2,24 @@
 
 #=========================== begin_copyright_notice ============================
 #
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 #
 #============================ end_copyright_notice =============================
 
 set -e
-# UBUNTU_VERSION   supported value [ 22, 24 ]                                                default 22
-# LLVM_VERSION     supported value [ 14, 15, 16 ]                                            default 14
+# UBUNTU_VERSION   supported value [ 20, 22 ]                                                default 20
+# LLVM_VERSION     supported value [ 10, 11, 12, 13, 14, 15]                                 default 11
 # COMPILER         supported value [ gcc, clang ]                                            default gcc
 # OWN_CMAKE_FLAGS  not suported but can be use as WA (each flag should be with -D prefix)    default empty
-# example run:     UBUNTU_VERSION=ubuntu2204 LLVM_VERSION=14 COMPILER=gcc sh /home/buildIGC.sh
+# example run:     UBUNTU_VERSION=ubuntu2004 LLVM_VERSION=11 COMPILER=gcc sh /home/buildIGC.sh
 
 echo "====================BUILD IGC========================="
 echo "[Build Status] build script started"
 if [ -z ${UBUNTU_VERSION+x} ]; then
-    echo "[Build Status] UBUNTU_VERSION is unset, use default 22";
-    UBUNTU_VERSION="22.04"
+    echo "[Build Status] UBUNTU_VERSION is unset, use default 20";
+    UBUNTU_VERSION="20.04"
 else
     echo "[Build Status] UBUNTU_VERSION = ${UBUNTU_VERSION}"
 fi
@@ -52,14 +52,26 @@ apt-get update
 apt-get install -y flex bison libz-dev cmake curl wget build-essential git software-properties-common unzip file lsb-release python3-mako libc6 libstdc++6
 echo "[Build Status] flex bison libz-dev cmake curl wget build-essential git software-properties-common unzip file INSTALLED"
 
-echo "[Build Status] Retrieve the LLVM archive signature for LLVM $LLVM_VERSION on Ubuntu $UBUNTU_VERSION";
-wget -q https://apt.llvm.org/llvm-snapshot.gpg.key
-apt-key add llvm-snapshot.gpg.key
-case "$UBUNTU_VERSION" in
-    22.04) OS_HANDLE=jammy;;
-    24.04) OS_HANDLE=noble;;
-esac
-add-apt-repository "deb http://apt.llvm.org/$OS_HANDLE/ llvm-toolchain-$OS_HANDLE-$LLVM_VERSION main"
+if [ "$UBUNTU_VERSION" = "20.04" ]; then
+    echo "[Build Status] Download new cmake version for Ubuntu 20.04";
+    apt-get purge -y --auto-remove cmake
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+    apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
+    apt-get update
+    apt-get install -y cmake
+fi
+
+if ([ "$UBUNTU_VERSION" = "20.04" ] && [ "$LLVM_VERSION" -ge 14 ]) || ([ "$UBUNTU_VERSION" = "22.04" ] && [ "$LLVM_VERSION" -ge 15 ])
+then
+    echo "[Build Status] Retrieve the LLVM archive signature for LLVM $LLVM_VERSION on Ubuntu $UBUNTU_VERSION";
+    wget -q https://apt.llvm.org/llvm-snapshot.gpg.key
+    apt-key add llvm-snapshot.gpg.key
+    case "$UBUNTU_VERSION" in
+        20.04) OS_HANDLE=focal;;
+        22.04) OS_HANDLE=jammy;;
+    esac
+    add-apt-repository "deb http://apt.llvm.org/$OS_HANDLE/ llvm-toolchain-$OS_HANDLE-$LLVM_VERSION main"
+fi
 
 apt-get install -y llvm-"$LLVM_VERSION" llvm-"$LLVM_VERSION"-dev clang-"$LLVM_VERSION" liblld-"$LLVM_VERSION" liblld-"$LLVM_VERSION"-dev
 echo "[Build Status] LLVM INSTALLED"
@@ -88,7 +100,7 @@ cd workspace/igc
 echo "[Build Status] IGC commit hash below:"
 echo "[Build Status] All necessary repository Ready"
 
-CONFIG_VARS="-DOS_NAME='ubuntu' -DOS_VERSION_NUMBER=$UBUNTU_VERSION -DIGC_OPTION__LLVM_MODE=Prebuilds -DIGC_OPTION__LLVM_PREFERRED_VERSION=$LLVM_VERSION_PREFERRED"
+CONFIG_VARS="-DIGC_OPTION__LLVM_MODE=Prebuilds -DIGC_OPTION__LLVM_PREFERRED_VERSION=$LLVM_VERSION_PREFERRED"
 case $COMPILER in
     "clang")
         CONFIG_VARS="$CONFIG_VARS -DCMAKE_C_COMPILER=clang-$LLVM_VERSION -DCMAKE_CXX_COMPILER=clang++-$LLVM_VERSION"
