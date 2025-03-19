@@ -47,7 +47,7 @@ if(UNIX)
     #  0x000000000000000c (INIT)               0x7ab000
     #  0x000000000000000d (FINI)               0x53ed664
 
-    set(CLANG_LIB_REGEX "${COMMON_CLANG_LIB_NAME_WITH_PREFIX}([0-9]+|\\.|so)+")
+    set(CLANG_LIB_REGEX "${COMMON_CLANG_LIB_FULL_NAME}([0-9]+|\\.|so)+")
     string(REGEX MATCH  "${CLANG_LIB_REGEX}" IMPORTED_SONAME "${CCLANG_READELF_CALL}")
     message("Extraced SONAME: ${IMPORTED_SONAME}")
 
