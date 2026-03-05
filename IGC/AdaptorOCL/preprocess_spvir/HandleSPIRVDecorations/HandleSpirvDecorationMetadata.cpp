@@ -551,13 +551,13 @@ void HandleSpirvDecorationMetadata::handleCacheControlINTELForOCL1DBlockPrefetch
              numElementsToPrefetch == 8 || numElementsToPrefetch == 16);
 
   uint32_t typeSizeInBytes = 0;
-  if (Matches[2].equals("uc"))
+  if (Matches[2] == "uc")
     typeSizeInBytes = 1;
-  else if (Matches[2].equals("us"))
+  else if (Matches[2] == "us")
     typeSizeInBytes = 2;
-  else if (Matches[2].equals("ui"))
+  else if (Matches[2] == "ui")
     typeSizeInBytes = 4;
-  else if (Matches[2].equals("ul"))
+  else if (Matches[2] == "ul")
     typeSizeInBytes = 8;
   else
     IGC_ASSERT(0 && "Unsupported type prefetch!");

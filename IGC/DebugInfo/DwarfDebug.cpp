@@ -865,7 +865,7 @@ CompileUnit *DwarfDebug::constructCompileUnit(DICompileUnit *DIUnit) {
 
   auto producer = DIUnit->getProducer();
   auto strProducer = producer.str();
-  if (producer.starts_with("clang version")) {
+  if (producer.startswith("clang version")) {
     auto pos = strProducer.find("(");
     strProducer = strProducer.substr(0, pos);
     producer = strProducer.data();
