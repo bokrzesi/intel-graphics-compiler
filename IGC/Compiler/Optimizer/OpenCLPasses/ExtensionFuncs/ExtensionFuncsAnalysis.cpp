@@ -86,7 +86,7 @@ void ExtensionFuncsAnalysis::visitCallInst(CallInst &CI) {
     StringRef funcName = F->getName();
     if (funcName.equals(VME_MB_BLOCK_TYPE) || funcName.equals(VME_SUBPIXEL_MODE) ||
         funcName.equals(VME_SAD_ADJUST_MODE) || funcName.equals(VME_SEARCH_PATH_TYPE) ||
-        funcName.startswith(VME_HELPER_GET_HANDLE) || funcName.startswith(VME_HELPER_GET_AS)) {
+        funcName.starts_with(VME_HELPER_GET_HANDLE) || funcName.starts_with(VME_HELPER_GET_AS)) {
       m_hasVME = true;
     }
   }

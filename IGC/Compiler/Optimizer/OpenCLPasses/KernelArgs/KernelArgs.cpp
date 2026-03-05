@@ -340,10 +340,10 @@ KernelArg::AccessQual KernelArg::calcAccessQual(const Argument *arg, const Strin
   if (qualStr.equals("read_write"))
     return READ_WRITE;
 
-  if (qualStr.startswith("read"))
+  if (qualStr.starts_with("read"))
     return READ_ONLY;
 
-  if (qualStr.startswith("write"))
+  if (qualStr.starts_with("write"))
     return WRITE_ONLY;
 
   return NONE;
@@ -404,7 +404,7 @@ unsigned int KernelArg::getLocationCount() const { return m_locationCount; }
 unsigned int KernelArg::getLocationIndex() const { return m_locationIndex; }
 
 bool KernelArg::isImage(const Argument *arg, const StringRef typeStr, ArgType &imageArgType) {
-  if (!typeStr.startswith("image") && !typeStr.startswith("bindless"))
+  if (!typeStr.starts_with("image") && !typeStr.starts_with("bindless"))
     return false;
 
   // Get the original OpenCL type from the metadata and check if it's an image

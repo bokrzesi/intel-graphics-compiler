@@ -172,7 +172,7 @@ void PrivateMemoryUsageAnalysis::visitCallInst(llvm::CallInst &CI) {
   // Check if a sqrtd builtin is called to enable privMem
   if (m_hasDPDivSqrtEmu && CI.hasName()) {
     Function *calledFunc = CI.getCalledFunction();
-    if (calledFunc && calledFunc->getName().startswith("__builtin_IB_native_sqrtd")) {
+    if (calledFunc && calledFunc->getName().starts_with("__builtin_IB_native_sqrtd")) {
       m_hasPrivateMem = true;
     }
   }

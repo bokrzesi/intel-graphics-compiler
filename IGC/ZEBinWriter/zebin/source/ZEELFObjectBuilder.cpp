@@ -816,7 +816,7 @@ uint16_t ELFWriter::numOfSections() {
 }
 
 ELFWriter::ELFWriter(llvm::raw_pwrite_stream &OS, ZEELFObjectBuilder &objBuilder)
-    : m_W(OS, llvm::support::little), m_ObjBuilder(objBuilder) {}
+    : m_W(OS, llvm::endianness::little), m_ObjBuilder(objBuilder) {}
 
 uint64_t ELFWriter::write() {
   uint64_t start = m_W.OS.tell();

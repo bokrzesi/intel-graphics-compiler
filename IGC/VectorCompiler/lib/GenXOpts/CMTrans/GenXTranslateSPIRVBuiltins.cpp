@@ -219,25 +219,25 @@ Value *SPIRVExpander::visitCallInst(CallInst &CI) {
   }
 
   // Addrspace-related builtins.
-  if (CalleeName.startswith("GenericCastToPtrExplicit"))
+  if (CalleeName.starts_with("GenericCastToPtrExplicit"))
     return emitIntrinsic(Builder, vc::InternalIntrinsic::cast_to_ptr_explicit,
                          Ty, {CI.getArgOperand(0)});
   // SPV_INTEL_bfloat16_conversion extension.
-  if (CalleeName.startswith("ConvertFToBF16INTEL")) {
+  if (CalleeName.starts_with("ConvertFToBF16INTEL")) {
     auto *Arg = CI.getArgOperand(0);
     auto *ArgTy = Arg->getType();
     return emitIntrinsic(Builder, vc::InternalIntrinsic::cast_to_bf16,
                          {Ty, ArgTy}, {Arg});
   }
-  if (CalleeName.startswith("ConvertBF16ToFINTEL")) {
+  if (CalleeName.starts_with("ConvertBF16ToFINTEL")) {
     auto *Arg = CI.getArgOperand(0);
     auto *ArgTy = Arg->getType();
     return emitIntrinsic(Builder, vc::InternalIntrinsic::cast_from_bf16,
                          {Ty, ArgTy}, {Arg});
   }
   // SPV_INTEL_tensor_float32_rounding extension.
-  if (CalleeName.startswith("RoundFToTF32INTEL") ||
-      CalleeName.startswith("ConvertFToTF32INTEL")) {
+  if (CalleeName.starts_with("RoundFToTF32INTEL") ||
+      CalleeName.starts_with("ConvertFToTF32INTEL")) {
     auto *Arg = CI.getArgOperand(0);
     auto *ArgTy = Arg->getType();
     Type *ResTy = Builder.getInt32Ty();
@@ -249,14 +249,14 @@ Value *SPIRVExpander::visitCallInst(CallInst &CI) {
     return Builder.CreateBitCast(Intr, Ty);
   }
   // SPV_KHR_shader_clock extension.
-  if (CalleeName.startswith("ReadClockKHR")) {
+  if (CalleeName.starts_with("ReadClockKHR")) {
     auto *Intr = emitIntrinsic(Builder, Intrinsic::readcyclecounter,
                                llvm::ArrayRef<llvm::Type *>(), {});
     return Builder.CreateBitCast(Intr, CI.getType());
   }
   // SPV_EXT_shader_atomic_float_min_max extension
-  if (CalleeName.startswith("AtomicFMin") ||
-      CalleeName.startswith("AtomicFMax")) {
+  if (CalleeName.starts_with("AtomicFMin") ||
+      CalleeName.starts_with("AtomicFMax")) {
     auto *Ptr = CI.getArgOperand(0);
     auto *Scope = CI.getArgOperand(1);
     auto *Semantic = CI.getArgOperand(2);
@@ -290,7 +290,7 @@ Value *SPIRVExpander::visitCallInst(CallInst &CI) {
   if (IID != Intrinsic::not_intrinsic)
     return emitMulExtended(Builder, IID, CI);
 
-  if (CalleeName.startswith("Dot")) {
+  if (CalleeName.starts_with("Dot")) {
     return emitDot(Builder, IID, CI);
   }
 
@@ -350,45 +350,45 @@ Value *SPIRVExpander::visitCallInst(CallInst &CI) {
     return emitMathIntrinsic(Builder, IID, Ty, Args, true);
   }
 
-  if (CalleeName.startswith("divide"))
+  if (CalleeName.starts_with("divide"))
     return emitFDiv(Builder, CI.getArgOperand(0), CI.getArgOperand(1), true);
-  if (CalleeName.startswith("exp10")) {
+  if (CalleeName.starts_with("exp10")) {
     // exp10(x) == exp2(x * log2(10))
     auto *C = ConstantFP::get(Ty, Log2_10);
     auto *ArgV = Builder.CreateFMul(CI.getArgOperand(0), C);
     return emitMathIntrinsic(Builder, Intrinsic::exp2, Ty, {ArgV}, true);
   }
-  if (CalleeName.startswith("exp")) {
+  if (CalleeName.starts_with("exp")) {
     // exp(x) == exp2(x * log2(e))
     auto *C = ConstantFP::get(Ty, Log2E);
     auto *ArgV = Builder.CreateFMul(CI.getArgOperand(0), C);
     return emitMathIntrinsic(Builder, Intrinsic::exp2, Ty, {ArgV}, true);
   }
-  if (CalleeName.startswith("log10")) {
+  if (CalleeName.starts_with("log10")) {
     // log10(x) == log2(x) * log10(2)
     auto *LogV = emitMathIntrinsic(Builder, Intrinsic::log2, Ty,
                                    {CI.getArgOperand(0)}, true);
     auto *C = ConstantFP::get(Ty, Log10_2);
     return Builder.CreateFMul(LogV, C);
   }
-  if (CalleeName.startswith("log")) {
+  if (CalleeName.starts_with("log")) {
     // ln(x) == log2(x) * ln(2)
     auto *LogV = emitMathIntrinsic(Builder, Intrinsic::log2, Ty,
                                    {CI.getArgOperand(0)}, true);
     auto *C = ConstantFP::get(Ty, Ln2);
     return Builder.CreateFMul(LogV, C);
   }
-  if (CalleeName.startswith("recip")) {
+  if (CalleeName.starts_with("recip")) {
     auto *OneC = ConstantFP::get(Ty, 1.0);
     return emitFDiv(Builder, OneC, CI.getArgOperand(0), true);
   }
-  if (CalleeName.startswith("rsqrt")) {
+  if (CalleeName.starts_with("rsqrt")) {
     auto *OneC = ConstantFP::get(Ty, 1.0);
     auto *SqrtV = emitMathIntrinsic(Builder, Intrinsic::sqrt, Ty,
                                     {CI.getArgOperand(0)}, true);
     return emitFDiv(Builder, OneC, SqrtV, true);
   }
-  if (CalleeName.startswith("tan")) {
+  if (CalleeName.starts_with("tan")) {
     // tan(x) == sin(x) / cos(x)
     auto *ArgV = CI.getArgOperand(0);
     auto *SinV = emitMathIntrinsic(Builder, Intrinsic::sin, Ty, {ArgV}, true);
@@ -462,7 +462,7 @@ void GenXTranslateSPIRVBuiltins::getAnalysisUsage(AnalysisUsage &AU) const {
 static bool isSPIRVBuiltinDecl(const Function &F) {
   auto Name = F.getName();
   // __devicelib_* functions may have implementations which VC should replace
-  if (Name.startswith("__devicelib") || Name == "__assert_fail")
+  if (Name.starts_with("__devicelib") || Name == "__assert_fail")
     return true;
   if (!F.isDeclaration())
     return false;

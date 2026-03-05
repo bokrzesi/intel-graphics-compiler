@@ -70,7 +70,7 @@ inline bool isInternalIntrinsic(unsigned ID) {
 /// getInternalIntrinsicID() returns InternalIntrinsic::not_internal_intrinsic!
 inline bool isInternalIntrinsic(const llvm::Function *CF) {
   IGC_ASSERT(CF);
-  return CF->getName().startswith(getInternalIntrinsicPrefix());
+  return CF->getName().starts_with(getInternalIntrinsicPrefix());
 }
 
 inline bool isInternalIntrinsic(const llvm::Value *V) {

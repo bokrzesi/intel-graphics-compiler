@@ -520,7 +520,7 @@ Function *PromoteSubByte::promoteFunction(Function *function) {
   }
 
 #if !defined(WDDM_ANDROID_IGC)
-  if (BiFManager::BiFManagerHandler::IsBiF(function) || function->getName().startswith("__builtin_IB_") ||
+  if (BiFManager::BiFManagerHandler::IsBiF(function) || function->getName().starts_with("__builtin_IB_") ||
       function->getName() == "intel_sub_group_ballot" ||
       function->getName().contains("intel_is_device_barrier_valid")) {
     return function;

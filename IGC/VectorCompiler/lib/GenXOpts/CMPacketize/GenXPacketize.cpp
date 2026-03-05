@@ -1718,17 +1718,17 @@ void GenXPacketize::fixupLLVMIntrinsics(Function &F) {
         auto *CI = cast<CallInst>(&I);
         auto *F = CI->getCalledFunction();
         if (F) {
-          if (F->getName().startswith("sqrt")) {
+          if (F->getName().starts_with("sqrt")) {
             B->IRB->SetInsertPoint(&I);
             auto *pSqrt = B->VSQRTPS(CI->getOperand(0));
             CI->replaceAllUsesWith(pSqrt);
             RemoveSet.insert(CI);
-          } else if (F->getName().startswith("fabs")) {
+          } else if (F->getName().starts_with("fabs")) {
             B->IRB->SetInsertPoint(&I);
             auto *pFabs = B->FABS(CI->getOperand(0));
             CI->replaceAllUsesWith(pFabs);
             RemoveSet.insert(CI);
-          } else if (F->getName().startswith("exp2")) {
+          } else if (F->getName().starts_with("exp2")) {
             B->IRB->SetInsertPoint(&I);
             auto *pExp2 = B->EXP2(CI->getOperand(0));
             CI->replaceAllUsesWith(pExp2);

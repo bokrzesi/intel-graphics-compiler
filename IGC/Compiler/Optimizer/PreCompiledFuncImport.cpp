@@ -579,23 +579,23 @@ bool PreCompiledFuncImport::runOnModule(Module &M) {
         for (auto &I : BB) {
           if (CallInst *CI = dyn_cast<CallInst>(&I)) {
             if (Function *calledFunc = CI->getCalledFunction()) {
-              if (calledFunc->getName().startswith("GenISA_fma_rtz")) {
+              if (calledFunc->getName().starts_with("GenISA_fma_rtz")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_fma_rtz);
-              } else if (calledFunc->getName().startswith("GenISA_fma_rtp")) {
+              } else if (calledFunc->getName().starts_with("GenISA_fma_rtp")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_fma_rtp);
-              } else if (calledFunc->getName().startswith("GenISA_fma_rtn")) {
+              } else if (calledFunc->getName().starts_with("GenISA_fma_rtn")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_fma_rtn);
-              } else if (calledFunc->getName().startswith("GenISA_add_rte")) {
+              } else if (calledFunc->getName().starts_with("GenISA_add_rte")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_add_rte);
-              } else if (calledFunc->getName().startswith("GenISA_add_rtz")) {
+              } else if (calledFunc->getName().starts_with("GenISA_add_rtz")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_add_rtz);
-              } else if (calledFunc->getName().startswith("GenISA_add_rtn")) {
+              } else if (calledFunc->getName().starts_with("GenISA_add_rtn")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_add_rtn);
-              } else if (calledFunc->getName().startswith("GenISA_add_rtp")) {
+              } else if (calledFunc->getName().starts_with("GenISA_add_rtp")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_add_rtp);
-              } else if (calledFunc->getName().startswith("GenISA_mul_rtz")) {
+              } else if (calledFunc->getName().starts_with("GenISA_mul_rtz")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_mul_rtz);
-              } else if (calledFunc->getName().startswith("GenISA_uitof_rtz")) {
+              } else if (calledFunc->getName().starts_with("GenISA_uitof_rtz")) {
                 createIntrinsicCall(CI, GenISAIntrinsic::GenISA_uitof_rtz);
               }
             }

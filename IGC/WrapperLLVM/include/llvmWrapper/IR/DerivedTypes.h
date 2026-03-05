@@ -44,8 +44,11 @@ inline llvm::Type *getWithNewBitWidth(const llvm::Type *Ty, unsigned NewBitWidth
 inline llvm::PointerType *get(llvm::PointerType *PT, unsigned AddressSpace) {
 #if LLVM_VERSION_MAJOR < 17 || defined(IGC_LLVM_TRUNK_REVISION)
   return llvm::PointerType::getWithSamePointeeType(PT, AddressSpace);
-#else
+#elif LLVM_VERSION_MAJOR < 22
   return llvm::PointerType::get(PT, AddressSpace);
+#else
+  IGC_ASSERT_EXIT_MESSAGE(0, "TODO");
+  return nullptr;
 #endif
 }
 

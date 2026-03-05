@@ -59,7 +59,7 @@ void ExtensionFuncsResolution::visitCallInst(CallInst &CI) {
     argType = ImplicitArg::VME_SAD_ADJUST_MODE;
   } else if (funcName.equals(ExtensionFuncsAnalysis::VME_SEARCH_PATH_TYPE)) {
     argType = ImplicitArg::VME_SEARCH_PATH_TYPE;
-  } else if (funcName.startswith(ExtensionFuncsAnalysis::VME_HELPER_GET_HANDLE)) {
+  } else if (funcName.starts_with(ExtensionFuncsAnalysis::VME_HELPER_GET_HANDLE)) {
     // Load from the opaque vme pointer and return the a vector with values.
     IGC_ASSERT(IGCLLVM::getNumArgOperands(&CI) == 1);
     IGCLLVM::IRBuilder<> builder(&CI);
@@ -71,7 +71,7 @@ void ExtensionFuncsResolution::visitCallInst(CallInst &CI) {
     CI.replaceAllUsesWith(ret);
     CI.eraseFromParent();
     return;
-  } else if (funcName.startswith(ExtensionFuncsAnalysis::VME_HELPER_GET_AS)) {
+  } else if (funcName.starts_with(ExtensionFuncsAnalysis::VME_HELPER_GET_AS)) {
     // Store the VME values and return an opaque vme pointer.
     IGC_ASSERT(IGCLLVM::getNumArgOperands(&CI) == 1);
     IGCLLVM::IRBuilder<> builder(&*CI.getParent()->getParent()->begin()->getFirstInsertionPt());

@@ -46,9 +46,9 @@ bool isImageBuiltinType(const Type *BuiltinTy) {
     BuiltinName.split(Buffer, ".");
     if (Buffer.size() < 2)
       return false;
-    bool IsOpenCLImage = Buffer[0].equals("opencl") && Buffer[1].startswith("image") && Buffer[1].endswith("_t");
+    bool IsOpenCLImage = Buffer[0].equals("opencl") && Buffer[1].starts_with("image") && Buffer[1].ends_with("_t");
     bool IsSPIRVImage =
-        Buffer[0].equals("spirv") && (Buffer[1].startswith("Image") || Buffer[1].startswith("SampledImage"));
+        Buffer[0].equals("spirv") && (Buffer[1].starts_with("Image") || Buffer[1].starts_with("SampledImage"));
 
     if (IsOpenCLImage || IsSPIRVImage)
       return true;
@@ -171,9 +171,9 @@ private:
 
     StringRef TyName = TET->getName();
     unsigned AS = ADDRESS_SPACE_PRIVATE;
-    if (TyName.startswith("spirv.Image") || TyName.startswith("spirv.SampledImage"))
+    if (TyName.starts_with("spirv.Image") || TyName.starts_with("spirv.SampledImage"))
       AS = ADDRESS_SPACE_GLOBAL;
-    else if (TyName.startswith("spirv.Sampler"))
+    else if (TyName.starts_with("spirv.Sampler"))
       AS = ADDRESS_SPACE_CONSTANT;
 
     return PointerType::get(Ctx, AS);

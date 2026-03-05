@@ -9430,7 +9430,7 @@ bool EmitPass::validateInlineAsmConstraints(llvm::CallInst *inst, SmallVector<St
   // Check the output constraint tokens
   for (; index < constraints.size(); index++) {
     StringRef &str = constraints[index];
-    if (str.startswith("=")) {
+    if (str.starts_with("=")) {
       success &= CheckConstraintTypes(str);
     } else {
       break;
@@ -23580,14 +23580,14 @@ void EmitPass::emitLSCFence(llvm::GenIntrinsicInst *inst) {
 unsigned short getLSCAtomicBitWidth(llvm::GenIntrinsicInst *inst) {
   llvm::StringRef name = inst->getCalledFunction()->getName();
   unsigned short bitwidth = 0;
-  if (name.startswith("llvm.genx.GenISA.LSCAtomicInts.i64") || name.startswith("llvm.genx.GenISA.LSCAtomicInts.u64") ||
-      name.startswith("llvm.genx.GenISA.LSCAtomicFP64"))
+  if (name.starts_with("llvm.genx.GenISA.LSCAtomicInts.i64") || name.starts_with("llvm.genx.GenISA.LSCAtomicInts.u64") ||
+      name.starts_with("llvm.genx.GenISA.LSCAtomicFP64"))
     bitwidth = 64;
-  else if (name.startswith("llvm.genx.GenISA.LSCAtomicInts.i32") ||
-           name.startswith("llvm.genx.GenISA.LSCAtomicInts.u32") || name.startswith("llvm.genx.GenISA.LSCAtomicFP32"))
+  else if (name.starts_with("llvm.genx.GenISA.LSCAtomicInts.i32") ||
+           name.starts_with("llvm.genx.GenISA.LSCAtomicInts.u32") || name.starts_with("llvm.genx.GenISA.LSCAtomicFP32"))
     bitwidth = 32;
-  else if (name.startswith("llvm.genx.GenISA.LSCAtomicInts.i16") ||
-           name.startswith("llvm.genx.GenISA.LSCAtomicInts.u16") || (name.startswith("llvm.genx.GenISA.LSCAtomicBF16")))
+  else if (name.starts_with("llvm.genx.GenISA.LSCAtomicInts.i16") ||
+           name.starts_with("llvm.genx.GenISA.LSCAtomicInts.u16") || (name.starts_with("llvm.genx.GenISA.LSCAtomicBF16")))
     bitwidth = 16;
   else
     IGC_ASSERT_MESSAGE(0, "Intrinsic support is not implemented.");
@@ -25029,7 +25029,7 @@ Function *EmitPass::findStackOverflowDetectionFunction(Function *ParentFunction,
     auto FG = m_FGA->getGroup(ParentFunction);
     // Function subgroup can contain clones of the subroutine.
     for (auto F : *FG) {
-      if (F->getName().startswith(FunctionName) && m_FGA->getSubGroupMap(ParentFunction) == m_FGA->getSubGroupMap(F)) {
+      if (F->getName().starts_with(FunctionName) && m_FGA->getSubGroupMap(ParentFunction) == m_FGA->getSubGroupMap(F)) {
         StackOverflowFunction = F;
         break;
       }

@@ -115,7 +115,7 @@ bool GenXBiFPrepare::runOnModule(Module &M) {
 
 bool GenXBiFPrepare::isLibraryFunction(const Function &F) {
   const auto &Name = F.getName();
-  return Name.startswith(vc::LibraryFunctionPrefix);
+  return Name.starts_with(vc::LibraryFunctionPrefix);
 }
 
 bool GenXBiFPrepare::isNeededForTarget(const Function &F,
@@ -138,17 +138,17 @@ bool GenXBiFPrepare::isNeededForTarget(const Function &F,
     // Get rid of double precision fdiv and fsqrt emulation functions if target
     // hw has native support
     if (!ST.emulateFDivFSqrt64() &&
-        (Name.startswith("fdiv") || Name.startswith("fsqrt")))
+        (Name.starts_with("fdiv") || Name.starts_with("fsqrt")))
       return false;
   }
 
-  if (ST.hasIEEEDivSqrt() && Name.startswith("fdiv") &&
+  if (ST.hasIEEEDivSqrt() && Name.starts_with("fdiv") &&
       F.getReturnType()->getScalarType()->isFloatTy())
     return false;
 
   static SmallVector<StringRef, 4> IDivRem = {"udiv", "sdiv", "urem", "srem"};
   auto IsDivRem = llvm::any_of(
-      IDivRem, [&Name](const auto &Arg) { return Name.startswith(Arg); });
+      IDivRem, [&Name](const auto &Arg) { return Name.starts_with(Arg); });
   if (IsDivRem && ST.hasIntDivRem32() &&
       !F.getReturnType()->isIntOrIntVectorTy(64))
     return false;
@@ -156,34 +156,34 @@ bool GenXBiFPrepare::isNeededForTarget(const Function &F,
   static SmallVector<StringRef, 4> FpCvt = {"fptosi", "fptoui", "sitofp",
                                             "uitofp"};
   auto IsFpCvt = llvm::any_of(
-      FpCvt, [&Name](const auto &Arg) { return Name.startswith(Arg); });
+      FpCvt, [&Name](const auto &Arg) { return Name.starts_with(Arg); });
   if (IsFpCvt && !ST.emulateLongLong())
     return false;
 
   // Remove L1-L2-L3 atomic routines for the platforms which don't support
   // efficient 64-bit addressing
-  if (!ST.supportEfficient64b() && Name.startswith("atomic") &&
-      Name.endswith("v3i8"))
+  if (!ST.supportEfficient64b() && Name.starts_with("atomic") &&
+      Name.ends_with("v3i8"))
     return false;
 
-  if (!ST.hasMxfp() && Name.startswith("mxfp"))
+  if (!ST.hasMxfp() && Name.starts_with("mxfp"))
     return false;
 
   bool Is64bit =
       IsDouble || F.getReturnType()->getScalarType()->isIntegerTy(64);
 
-  if (!ST.hasLocalIntegerCas64() && Is64bit && Name.startswith("atomic_slm"))
+  if (!ST.hasLocalIntegerCas64() && Is64bit && Name.starts_with("atomic_slm"))
     return false;
 
   if (ST.hasInstrLocalAtomicAddF32() &&
       F.getReturnType()->getScalarType()->isFloatTy() &&
-      Name.startswith("atomic_slm"))
+      Name.starts_with("atomic_slm"))
     return false;
 
   // only half precision uses i32 data type
   if (ST.hasInstrAtomicHF16() &&
       F.getReturnType()->getScalarType()->isIntegerTy(32) &&
-      Name.startswith("atomic_"))
+      Name.starts_with("atomic_"))
     return false;
 
   return true;

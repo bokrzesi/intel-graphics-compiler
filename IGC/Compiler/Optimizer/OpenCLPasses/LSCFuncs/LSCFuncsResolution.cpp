@@ -291,35 +291,35 @@ void LSCFuncsResolution::visitCallInst(CallInst &CI) {
 
   //////////////
   // loads
-  if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_LOAD_global)) {
+  if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_LOAD_global)) {
     lscCall = CreateLSCLoadIntrinsicCallInst(GenISAIntrinsic::GenISA_LSCLoad, false);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_LOAD_BLOCK_global)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_LOAD_BLOCK_global)) {
     lscCall = CreateLSCLoadIntrinsicCallInst(GenISAIntrinsic::GenISA_LSCLoadBlock, false);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_LOAD_local)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_LOAD_local)) {
     lscCall = CreateLSCLoadIntrinsicCallInst(GenISAIntrinsic::GenISA_LSCLoad, true);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_LOAD_CMASK_global)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_LOAD_CMASK_global)) {
     lscCall = CreateLSCLoadCmaskIntrinsicCallInst(false);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_LOAD_CMASK_local)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_LOAD_CMASK_local)) {
     lscCall = CreateLSCLoadCmaskIntrinsicCallInst(true);
     //////////////
     // prefetches
   } else if (FN.consume_front(LSCFuncsResolution::PREFIX_LSC_SIMD_BLOCK_PREFETCH)) {
     lscCall = CreateLSCSimdBlockPrefetchIntrinsicCallInst(FN);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_LOAD_status)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_LOAD_status)) {
     lscCall = CreateLSCLoadStatusPreftchIntrinsicCallInst(GenISAIntrinsic::GenISA_LSCLoadStatus);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_PREFETCH)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_PREFETCH)) {
     lscCall = CreateLSCLoadStatusPreftchIntrinsicCallInst(GenISAIntrinsic::GenISA_LSCPrefetch);
     //////////////
     // stores
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_STORE_global)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_STORE_global)) {
     lscCall = CreateLSCStoreIntrinsicCallInst(GenISAIntrinsic::GenISA_LSCStore, false);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_STORE_BLOCK_global)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_STORE_BLOCK_global)) {
     lscCall = CreateLSCStoreIntrinsicCallInst(GenISAIntrinsic::GenISA_LSCStoreBlock, false);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_STORE_local)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_STORE_local)) {
     lscCall = CreateLSCStoreIntrinsicCallInst(GenISAIntrinsic::GenISA_LSCStore, true);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_STORE_CMASK_global)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_STORE_CMASK_global)) {
     lscCall = CreateLSCStoreCmaskIntrinsicCallInst(false);
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_STORE_CMASK_local)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_STORE_CMASK_local)) {
     lscCall = CreateLSCStoreCmaskIntrinsicCallInst(true);
     //////////////
     // 2d block intrinsics
@@ -353,15 +353,15 @@ void LSCFuncsResolution::visitCallInst(CallInst &CI) {
     lscCall = CreateSubGroup2DBlockOperation(CI, FN, false);
     //////////////
     // atomics
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_ATOMIC)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_ATOMIC)) {
     bool isLocalMem = FN.find("_local_") != StringRef::npos;
     lscCall = CreateLSCAtomicIntrinsicCallInst(isLocalMem);
     //////////////
     // misc stuff
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_FENCE_EVICT_TO_MEMORY)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_FENCE_EVICT_TO_MEMORY)) {
     // LSC fence
     lscCall = CreateLSCFenceEvictToMemory();
-  } else if (FN.startswith(LSCFuncsResolution::PREFIX_LSC_FENCE)) {
+  } else if (FN.starts_with(LSCFuncsResolution::PREFIX_LSC_FENCE)) {
     // LSC fence
     lscCall = CreateLSCFenceIntrinsicCallInst(CI);
   } else {
@@ -1484,11 +1484,11 @@ LscTypeInfo LSCFuncsResolution::decodeTypeInfoFromName() {
   //  they don't return data
   // everything else is suffixed by the type and maybe a vector integer
 
-  if ((FN.endswith("uchar_to_uint")) || (FN.endswith("uchar_from_uint"))) {
+  if ((FN.ends_with("uchar_to_uint")) || (FN.ends_with("uchar_from_uint"))) {
     ti.dataSize = LSC_DATA_SIZE_8c32b;
     ti.sizeOfType = 1;
     return ti;
-  } else if (FN.endswith("ushort_to_uint") || FN.endswith("ushort_from_uint")) {
+  } else if (FN.ends_with("ushort_to_uint") || FN.ends_with("ushort_from_uint")) {
     ti.dataSize = LSC_DATA_SIZE_16c32b;
     ti.sizeOfType = 2;
     return ti;
@@ -1571,8 +1571,8 @@ LscTypeInfo LSCFuncsResolution::decodeTypeInfoFromName() {
     // The legal prototypes provided in the builtin file constrain
     // most mischief, but remember anyone can write a prototype.
     if (ti.dataSize == LSC_DATA_SIZE_8b || ti.dataSize == LSC_DATA_SIZE_16b) {
-      bool isPrefetchOrLoadStatus = FN.startswith(LSCFuncsResolution::PREFIX_LSC_LOAD_status) ||
-                                    FN.startswith(LSCFuncsResolution::PREFIX_LSC_PREFETCH);
+      bool isPrefetchOrLoadStatus = FN.starts_with(LSCFuncsResolution::PREFIX_LSC_LOAD_status) ||
+                                    FN.starts_with(LSCFuncsResolution::PREFIX_LSC_PREFETCH);
       if (!isPrefetchOrLoadStatus) {
         // D8 and D16 aren't supported yet in normal (non-prefetch)
         // loads and stores

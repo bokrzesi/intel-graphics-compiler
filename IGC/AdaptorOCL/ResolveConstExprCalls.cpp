@@ -101,7 +101,7 @@ bool transformConstExprCastCall(CallInst &Call) {
       return false; // Cannot transform this parameter value.
 
     AttrBuilder AB(FT->getContext(), CallerPAL.getParamAttrs(i));
-    if (AB.overlaps(AttributeFuncs::typeIncompatible(ParamTy)))
+    if (AB.overlaps(AttributeFuncs::typeIncompatible(ParamTy, Call.getParamAttributes(i))))
       return false; // Attribute not compatible with transformed value.
 
     if (Call.isInAllocaArgument(i))
@@ -150,7 +150,7 @@ bool transformConstExprCastCall(CallInst &Call) {
   AttrBuilder RAttrs(FT->getContext(), CallerPAL.getRetAttrs());
   // If the return value is not being used, the type may not be compatible
   // with the existing attributes.  Wipe out any problematic attributes.
-  RAttrs.remove(AttributeFuncs::typeIncompatible(NewRetTy));
+  RAttrs.remove(AttributeFuncs::typeIncompatible(NewRetTy, Call.getAttributes().getRetAttrs()));
 
   LLVMContext &Ctx = Call.getContext();
   AI = Call.arg_begin();

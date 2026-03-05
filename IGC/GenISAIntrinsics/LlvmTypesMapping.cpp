@@ -130,7 +130,13 @@ bool StructType::VerifyType(llvm::Type *pType) const {
 
 llvm::Type *PointerType::GetType(llvm::LLVMContext &ctx, llvm::Type *pType, uint32_t addressSpace) {
   IGC_ASSERT(pType != nullptr && addressSpace != UINT32_MAX);
-  return llvm::PointerType::get(pType, addressSpace);
+
+  #if LLVM_VERSION_MAJOR >= 22
+    IGC_ASSERT_EXIT_MESSAGE(0, "TODO");
+    return nullptr;
+  #else
+    return llvm::PointerType::get(pType, addressSpace);
+  #endif
 }
 
 llvm::Type *PointerType::GetType(llvm::LLVMContext &ctx) const {

@@ -628,7 +628,7 @@ static void ParseHashRange(llvm::StringRef line, std::vector<HashRange> &ranges)
   if (!Result)
     return;
   auto parseAsInt = [](StringRef S) {
-    unsigned Radix = S.startswith("0x") ? 0 : 16;
+    unsigned Radix = S.starts_with("0x") ? 0 : 16;
     uint64_t Result;
     [[maybe_unused]] bool Err = S.getAsInteger(Radix, Result);
     IGC_ASSERT(!Err);

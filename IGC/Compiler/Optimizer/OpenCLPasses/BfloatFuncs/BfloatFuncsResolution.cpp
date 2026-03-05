@@ -63,7 +63,7 @@ void BfloatFuncsResolution::visitCallInst(CallInst &CI) {
   std::string DNameStr = llvm::demangle(CI.getCalledFunction()->getName().str());
   StringRef DName(DNameStr);
 
-  if (!DName.startswith("__builtin_bf16"))
+  if (!DName.starts_with("__builtin_bf16"))
     return;
 
   m_builder->SetInsertPoint(&CI);

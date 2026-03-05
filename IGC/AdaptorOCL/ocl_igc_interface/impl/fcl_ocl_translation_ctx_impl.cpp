@@ -318,7 +318,7 @@ static bool processCmSrcOptions(llvm::SmallVectorImpl<const char *> &userArgs, s
   optname += "=";
   toErase = std::find_if(userArgs.begin(), userArgs.end(), [&optname](const auto &Item) {
     llvm::StringRef S = Item;
-    return S.startswith(optname);
+    return S.starts_with(optname);
   });
   if (toErase != userArgs.end()) {
     inputFile = *toErase;

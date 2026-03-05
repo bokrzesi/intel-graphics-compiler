@@ -42,7 +42,7 @@ public:
   // Methods for support type inquiry through isa, cast, and dyn_cast:
   static bool classof(const CallInst *I) {
     if (const Function *CF = I->getCalledFunction()) {
-      return CF->getName().startswith(
+      return CF->getName().starts_with(
           vc::InternalIntrinsic::getInternalIntrinsicPrefix());
     }
     return false;

@@ -118,8 +118,8 @@ void CImagesBI::prepareCoords(Dimension Dim, Value *Coord, Value *Zero) {
 
 void CImagesBI::CreateInlineSamplerAnnotations(Module *M, InlineSamplersMD &inlineSamplerMD, int samplerValue) {
   inlineSamplerMD.m_Value = samplerValue;
-  if (llvm::StringRef(M->getTargetTriple()).startswith("igil") ||
-      llvm::StringRef(M->getTargetTriple()).startswith("gpu_64")) {
+  if (llvm::StringRef(M->getTargetTriple()).starts_with("igil") ||
+      llvm::StringRef(M->getTargetTriple()).starts_with("gpu_64")) {
     inlineSamplerMD.addressMode = samplerValue & LEGACY_SAMPLER_ADDRESS_MASK;
     switch (samplerValue & LEGACY_SAMPLER_ADDRESS_MASK) {
     case LEGACY_CLK_ADDRESS_NONE:
@@ -181,7 +181,7 @@ void CImagesBI::CreateInlineSamplerAnnotations(Module *M, InlineSamplersMD &inli
     inlineSamplerMD.BorderColorG = (0.0f);
     inlineSamplerMD.BorderColorB = (0.0f);
     inlineSamplerMD.BorderColorA = (0.0f);
-  } else if (llvm::StringRef(M->getTargetTriple()).startswith("spir")) {
+  } else if (llvm::StringRef(M->getTargetTriple()).starts_with("spir")) {
     switch (samplerValue & SPIR_SAMPLER_ADDRESS_MASK) {
     case SPIR_CLK_ADDRESS_NONE:
       inlineSamplerMD.TCXAddressMode = (iOpenCL::SAMPLER_TEXTURE_ADDRESS_MODE_CLAMP);

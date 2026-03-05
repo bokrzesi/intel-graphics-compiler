@@ -532,7 +532,7 @@ void HandleSpirvDecorationMetadata::handleCacheControlINTELFor1DBlockIO(CallInst
 void HandleSpirvDecorationMetadata::handleCacheControlINTELForOCL1DBlockPrefetch(CallInst &I,
                                                                                  SmallPtrSetImpl<MDNode *> &MDNodes,
                                                                                  SmallVectorImpl<StringRef> &Matches) {
-  IGC_ASSERT(Matches[1].startswith("intel_sub_group_block_prefetch"));
+  IGC_ASSERT(Matches[1].starts_with("intel_sub_group_block_prefetch"));
 
   CacheControlFromMDNodes cacheControl = resolveCacheControlFromMDNodes<LoadCacheControl>(m_pCtx, MDNodes);
   if (cacheControl.isEmpty)

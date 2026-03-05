@@ -697,7 +697,7 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
              funcName.equals(SubGroupFuncsResolution::SIMD_BLOCK_READ_8_GBL_L)) {
     CheckSIMDSize(CI, "Block reads not supported in SIMD32");
     simdBlockRead(CI);
-  } else if (funcName.startswith("__builtin_IB_cache_controls_simd_block_read")) {
+  } else if (funcName.starts_with("__builtin_IB_cache_controls_simd_block_read")) {
     CheckSIMDSize(CI, "Block reads not supported in SIMD32");
     simdBlockRead(CI, true);
   } else if (funcName.equals(SubGroupFuncsResolution::SIMD_BLOCK_WRITE_1_GBL) ||
@@ -720,7 +720,7 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
              funcName.equals(SubGroupFuncsResolution::SIMD_BLOCK_WRITE_8_GBL_L)) {
     CheckSIMDSize(CI, "Block writes not supported in SIMD32");
     simdBlockWrite(CI);
-  } else if (funcName.startswith("__builtin_IB_cache_controls_simd_block_write")) {
+  } else if (funcName.starts_with("__builtin_IB_cache_controls_simd_block_write")) {
     CheckSIMDSize(CI, "Block writes not supported in SIMD32");
     simdBlockWrite(CI, true);
   } else if (funcName.equals(SubGroupFuncsResolution::SIMD_BLOCK_READ_1_LCL) ||
@@ -803,7 +803,7 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
              funcName.equals(SubGroupFuncsResolution::SIMD_MEDIA_BLOCK_WRITE_8_L)) {
     CheckSIMDSize(CI, "SIMD Media Block Write not supported in SIMD32");
     mediaBlockWrite(CI);
-  } else if (funcName.startswith(SubGroupFuncsResolution::MEDIA_BLOCK_READ)) {
+  } else if (funcName.starts_with(SubGroupFuncsResolution::MEDIA_BLOCK_READ)) {
     // Creates intrinsics that will be lowered in the CodeGen and will handle the media_block_read
 
     SmallVector<Value *, 5> args;
@@ -846,7 +846,7 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
 
     CI.replaceAllUsesWith(MediaBlockRead);
     CI.eraseFromParent();
-  } else if (funcName.startswith(SubGroupFuncsResolution::MEDIA_BLOCK_WRITE)) {
+  } else if (funcName.starts_with(SubGroupFuncsResolution::MEDIA_BLOCK_WRITE)) {
     // Creates intrinsics that will be lowered in the CodeGen and will handle the media_block_write
 
     SmallVector<Value *, 5> args;
@@ -915,15 +915,15 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
 
     CI.replaceAllUsesWith(imageIndex);
     CI.eraseFromParent();
-  } else if (funcName.startswith(SubGroupFuncsResolution::SUB_GROUP_REDUCE)) {
+  } else if (funcName.starts_with(SubGroupFuncsResolution::SUB_GROUP_REDUCE)) {
     return subGroupArithmetic(CI, GetWaveOp(funcName), GroupOperationReduce);
-  } else if (funcName.startswith(SubGroupFuncsResolution::SUB_GROUP_SCAN)) {
+  } else if (funcName.starts_with(SubGroupFuncsResolution::SUB_GROUP_SCAN)) {
     return subGroupArithmetic(CI, GetWaveOp(funcName), GroupOperationScan);
-  } else if (funcName.startswith(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_REDUCE)) {
+  } else if (funcName.starts_with(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_REDUCE)) {
     return subGroupArithmetic(CI, GetWaveOp(funcName), GroupOperationClusteredReduce);
-  } else if (funcName.startswith(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_SCAN)) {
+  } else if (funcName.starts_with(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_SCAN)) {
     return subGroupArithmetic(CI, GetWaveOp(funcName), GroupOperationClusteredScan);
-  } else if (funcName.startswith(SubGroupFuncsResolution::SUB_GROUP_BARRIER)) {
+  } else if (funcName.starts_with(SubGroupFuncsResolution::SUB_GROUP_BARRIER)) {
     ModuleMetaData *modMD = getAnalysis<MetaDataUtilsWrapper>().getModuleMetaData();
 
     // Subgroup barrier is a no-op in HW.

@@ -6,7 +6,9 @@
 #
 #============================ end_copyright_notice =============================
 
+
 target_sources(IGCOptions
   PRIVATE
-  Options.cpp
+  API-Options.cpp
+  Internal-Options.cpp
   )

@@ -139,7 +139,7 @@ void ExtensionArgAnalysis::visitCallInst(llvm::CallInst &CI) {
 
   StringRef name = F->getName();
 
-  if (name.startswith("__builtin_IB_media_block_") || name == "__builtin_IB_media_block_rectangle_read") {
+  if (name.starts_with("__builtin_IB_media_block_") || name == "__builtin_IB_media_block_rectangle_read") {
     SetExtension(0, ResourceExtensionTypeEnum::MediaResourceBlockType, m_MediaBlockArgs);
   } else if (name == "__builtin_IB_vme_send_fbr" || name == "__builtin_IB_vme_send_ime") {
     SetExtension(3, ResourceExtensionTypeEnum::MediaResourceType, m_MediaArgs);
@@ -150,7 +150,7 @@ void ExtensionArgAnalysis::visitCallInst(llvm::CallInst &CI) {
     SetExtension(4, ResourceExtensionTypeEnum::MediaResourceType, m_MediaArgs);
     SetExtension(5, ResourceExtensionTypeEnum::MediaResourceType, m_MediaArgs);
     CheckandSetSIMD16();
-  } else if (name.startswith("__builtin_IB_vme_send_ime_new") || name == "__builtin_IB_vme_send_sic_new" ||
+  } else if (name.starts_with("__builtin_IB_vme_send_ime_new") || name == "__builtin_IB_vme_send_sic_new" ||
              name == "__builtin_IB_vme_send_fbr_new") {
     // Handle image args.
     SetExtension(1, ResourceExtensionTypeEnum::MediaResourceType, m_MediaArgs);
