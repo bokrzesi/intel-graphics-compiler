@@ -865,7 +865,7 @@ CompileUnit *DwarfDebug::constructCompileUnit(DICompileUnit *DIUnit) {
 
   auto producer = DIUnit->getProducer();
   auto strProducer = producer.str();
-  if (producer.startswith("clang version")) {
+  if (producer.starts_with("clang version")) {
     auto pos = strProducer.find("(");
     strProducer = strProducer.substr(0, pos);
     producer = strProducer.data();
@@ -1274,8 +1274,7 @@ void DwarfDebug::endSections() {
     if (SCU.Sym->isInSection()) {
       // Make a note of this symbol and it's section.
       const MCSection *Section = &SCU.Sym->getSection();
-      if (!Section->getKind().isMetadata())
-        SectionMap[Section].push_back(SCU);
+      SectionMap[Section].push_back(SCU);
     } else {
       // Some symbols (e.g. common/bss on mach-o) can have no section but still
       // appear in the output. This sucks as we rely on sections to build
