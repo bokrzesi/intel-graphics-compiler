@@ -57,7 +57,12 @@ SPDX-License-Identifier: MIT
 #include "llvm/Transforms/Utils/UnifyFunctionExitNodes.h"
 #include "llvm/Transforms/Utils.h"
 #include "llvm/Support/YAMLTraits.h"
+
+#if LLVM_VERSION_MAJOR >= 22
+#include "llvm/Support/ManagedStatic.h"
+#endif
 #include "common/LLVMWarningsPop.hpp"
+
 #include "llvmWrapper/ADT/StringRef.h"
 #include "llvmWrapper/IR/DerivedTypes.h"
 #include "llvmWrapper/IR/Type.h"
@@ -1117,7 +1122,11 @@ void rewriteAnonTypes(Module &M) {
 
 void preprocess(Module &M) {
   llvm::legacy::PassManager mpm;
-  mpm.add(createUnifyFunctionExitNodesPass());
+  // https://github.com/llvm/llvm-project/commit/3cc523d935427baf62766e9e2cc7b65eca5925bb
+  // UnifyFunctionExitNodesLegacyPass isn't used anywhere in upstream and thus isn't tested at all. For these reasons, remove it.
+  #if LLVM_VERSION_MAJOR < 22
+    mpm.add(createUnifyFunctionExitNodesPass());
+  #endif
   mpm.add(createLowerSwitchPass());
   mpm.run(M);
 

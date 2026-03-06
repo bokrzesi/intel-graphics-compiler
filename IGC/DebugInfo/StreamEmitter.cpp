@@ -69,7 +69,7 @@ public:
   VISAELFObjectWriter(bool is64Bit, uint8_t osABI, uint16_t eMachine, bool hasRelocationAddend)
       : MCELFObjectTargetWriter(is64Bit, osABI, eMachine, hasRelocationAddend) {}
 
-  unsigned getRelocType(MCContext &Ctx, const MCValue &Target, const MCFixup &Fixup, bool IsPCRel) const {
+  unsigned getRelocType(const MCFixup &Fixup, const MCValue &Target, bool IsPCRel) const override {
     #if LLVM_VERSION_MAJOR >= 22
     MCSymbolRefExpr::VariantKind modifier = MCSymbolRefExpr::VariantKind::VK_COFF_IMGREL32;
     #else
@@ -174,12 +174,11 @@ public:
     }
   }
 
-  void applyFixup(const MCAssembler &Asm, const MCFixup &fixup, const MCValue &Target, MutableArrayRef<char> Data,
-                  uint64_t value, bool IsResolved, const MCSubtargetInfo *STI) const {
+  void applyFixup(const MCFragment &F, const MCFixup &fixup, const MCValue &Target, uint8_t *Data,
+                  uint64_t value, bool IsResolved) override {
     unsigned size = 1 << getFixupKindLog2Size(fixup.getKind());
 
-    IGC_ASSERT_MESSAGE(fixup.getOffset() + size <= Data.size(), "Invalid fixup offset!");
-
+    IGC_ASSERT_MESSAGE(fixup.getOffset() + size <= F.getSize(), "Invalid fixup size!");
     // Check that uppper bits are either all zeros or all ones.
     // Specifically ignore overflow/underflow as long as the leakage is
     // limited to the lower bits. This is to remain compatible with
@@ -233,7 +232,7 @@ public:
 class VISAMCCodeEmitter : public MCCodeEmitter {
   /// EncodeInstruction - Encode the given \p inst to bytes on the output
   /// stream \p OS.
-  virtual void encodeInstruction(const MCInst &inst, raw_ostream &os, SmallVectorImpl<MCFixup> &fixups,
+  virtual void encodeInstruction(const MCInst &inst, SmallVectorImpl<char> &os, SmallVectorImpl<MCFixup> &fixups,
                                  const MCSubtargetInfo &m) const {
     // TODO: implement this
     IGC_ASSERT_EXIT_MESSAGE(0, "Unimplemented");
