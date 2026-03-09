@@ -141,7 +141,7 @@ bool CustomLoopVersioning::detectLoop(Loop *loop, Value *&var_range_x, Value *&v
   BasicBlock *body = loop->getLoopLatch();
 
   Instruction *i0 = body->getFirstNonPHIOrDbg();
-  Instruction *i1 = i0->getNextNonDebugInstruction();
+  Instruction *i1 = i0->getNextNode();
 
   CallInst *imax = dyn_cast<CallInst>(i0);
   CallInst *imin = i1 ? dyn_cast<CallInst>(i1) : nullptr;
@@ -253,7 +253,7 @@ void CustomLoopVersioning::rewriteLoopSeg1(Loop *loop, Value *interval_x, Value 
   fcmp->setOperand(1, interval_x);
 
   Instruction *i0 = body->getFirstNonPHIOrDbg();
-  Instruction *i1 = i0->getNextNonDebugInstruction();
+  Instruction *i1 = i0->getNextNode();
 
   IntrinsicInst *imax = cast<IntrinsicInst>(i0);
   IntrinsicInst *imin = cast<IntrinsicInst>(i1);
@@ -349,7 +349,7 @@ void CustomLoopVersioning::rewriteLoopSeg2(Loop *loop, Value *interval_y, Value 
   fcmp->setOperand(1, v);
 
   Instruction *i0 = body->getFirstNonPHIOrDbg();
-  Instruction *i1 = i0->getNextNonDebugInstruction();
+  Instruction *i1 = i0->getNextNode();
 
   IntrinsicInst *imax = cast<IntrinsicInst>(i0);
   IntrinsicInst *imin = cast<IntrinsicInst>(i1);
@@ -391,7 +391,7 @@ void CustomLoopVersioning::rewriteLoopSeg2(Loop *loop, Value *interval_y, Value 
 //     float val1 = loop_range_y;
 void CustomLoopVersioning::rewriteLoopSeg3(BasicBlock *bb, Value *interval_y) {
   Instruction *i0 = bb->getFirstNonPHIOrDbg();
-  Instruction *i1 = i0->getNextNonDebugInstruction();
+  Instruction *i1 = i0->getNextNode();
 
   IntrinsicInst *imax = cast<IntrinsicInst>(i0);
   IntrinsicInst *imin = cast<IntrinsicInst>(i1);
@@ -921,7 +921,7 @@ bool LoopHoistConstant::runOnLoop(Loop *L, LPPassManager &LPM) {
 
   // Match the minnum comparison between the induction var and the loop size
   // Should appear right after the post-incremented induction variable
-  MinInst = dyn_cast<IntrinsicInst>(InductionPostInc->getNextNonDebugInstruction());
+  MinInst = dyn_cast<IntrinsicInst>(InductionPostInc->getNextNode());
   if (MinInst && MinInst->getIntrinsicID() == llvm::Intrinsic::minnum) {
     Value *min1 = MinInst->getOperand(0);
     Value *min2 = MinInst->getOperand(1);

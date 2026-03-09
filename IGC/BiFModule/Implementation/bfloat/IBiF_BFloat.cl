@@ -5,7 +5,7 @@ Copyright (C) 2026 Intel Corporation
 SPDX-License-Identifier: MIT
 
 ============================= end_copyright_notice ===========================*/
-
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types"
 ///
 /// \file
 /// \brief Implementation of BiF intrinsics for BFloat16 data type support.

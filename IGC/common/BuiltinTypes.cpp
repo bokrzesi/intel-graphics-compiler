@@ -46,9 +46,9 @@ bool isImageBuiltinType(const Type *BuiltinTy) {
     BuiltinName.split(Buffer, ".");
     if (Buffer.size() < 2)
       return false;
-    bool IsOpenCLImage = Buffer[0].equals("opencl") && Buffer[1].starts_with("image") && Buffer[1].ends_with("_t");
+    bool IsOpenCLImage = Buffer[0] == ("opencl") && Buffer[1].starts_with("image") && Buffer[1].ends_with("_t");
     bool IsSPIRVImage =
-        Buffer[0].equals("spirv") && (Buffer[1].starts_with("Image") || Buffer[1].starts_with("SampledImage"));
+        Buffer[0] == ("spirv") && (Buffer[1].starts_with("Image") || Buffer[1].starts_with("SampledImage"));
 
     if (IsOpenCLImage || IsSPIRVImage)
       return true;

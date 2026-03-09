@@ -422,7 +422,7 @@ bool IGCVectorizer::handlePHI(VecArr &Slice) {
       PRINT_LOG_NL("Created Vector: ");
       Instruction *InsertPoint = BB->getTerminator();
       if (ScalarPhi->getParent() == BB) {
-        InsertPoint = getInsertPointForVector(ForVector)->getNextNonDebugInstruction();
+        InsertPoint = getInsertPointForVector(ForVector)->getNextNode();
         if (!InsertPoint)
           return false;
       }
@@ -511,7 +511,7 @@ Instruction *IGCVectorizer::getInsertPointForCreatedInstruction(VecVal &Operands
 
   Instruction *InsertPoint = Slice.front()->getParent()->getFirstNonPHI();
   if (InstOperands.size() != 0) {
-    InsertPoint = getMaxPoint(InstOperands)->getNextNonDebugInstruction();
+    InsertPoint = getMaxPoint(InstOperands)->getNextNode();
     // if insert point is PHI, shift it to the first nonPHI to be safe
     if (llvm::isa<llvm::PHINode>(InsertPoint))
       InsertPoint = InsertPoint->getParent()->getFirstNonPHI();
@@ -585,7 +585,7 @@ void IGCVectorizer::replaceSliceInstructionsWithExtract(VecArr &Slice, Instructi
   PRINT_INST_NL(CreatedInst);
 
   Instruction *InsertPoint = (llvm::isa<PHINode>(Slice.front())) ? CreatedInst->getParent()->getFirstNonPHI()
-                                                                 : CreatedInst->getNextNonDebugInstruction();
+                                                                 : CreatedInst->getNextNode();
 
   for (size_t i = 0; i < Slice.size(); i++) {
 
@@ -1266,7 +1266,7 @@ Value *IGCVectorizer::vectorizeSlice(VecArr &Slice, unsigned int OperNum) {
       PRINT_LOG_NL("Couldn't find insert point");
       return nullptr;
     }
-    NewVector = createVector(NotVectorizedInstruction, InsertPoint->getNextNonDebugInstruction());
+    NewVector = createVector(NotVectorizedInstruction, InsertPoint->getNextNode());
     PRINT_LOG("New vector created: ");
     PRINT_INST_NL(NewVector);
   }
@@ -1392,7 +1392,7 @@ bool IGCVectorizerCommon::checkDependencyAndTryToEliminate(VecArr &Slice, unsign
   Instruction *SearchPoint = MinPoint;
   SliceScope.push_back(SearchPoint);
   while (SearchPoint != MaxPoint) {
-    SearchPoint = SearchPoint->getNextNonDebugInstruction();
+    SearchPoint = SearchPoint->getNextNode();
     SliceScope.push_back(SearchPoint);
   }
 
@@ -1438,7 +1438,7 @@ bool IGCVectorizerCommon::checkDependencyAndTryToEliminate(VecArr &Slice, unsign
     }
   }
 
-  Instruction *AfterInsertPoint = MaxPoint->getNextNonDebugInstruction();
+  Instruction *AfterInsertPoint = MaxPoint->getNextNode();
   // scheduling part
   // everything that doesn't depend on slice values goes before
   // everything that DEPENDS on slice-value goes after

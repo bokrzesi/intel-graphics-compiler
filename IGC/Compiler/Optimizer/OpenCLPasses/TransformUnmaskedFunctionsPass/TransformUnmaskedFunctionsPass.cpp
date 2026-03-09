@@ -52,7 +52,7 @@ static void annotateUnmaskedCallSite(CallInst *CI) {
   Function *unmaskedEnd = GenISAIntrinsic::getDeclaration(M, GenISAIntrinsic::GenISA_UnmaskedRegionEnd);
 
   builder.CreateCall(unmaskedBegin);
-  builder.SetInsertPoint(CI->getNextNonDebugInstruction());
+  builder.SetInsertPoint(CI->getNextNode());
   builder.CreateCall(unmaskedEnd);
 }
 

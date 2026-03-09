@@ -3,7 +3,7 @@
 Copyright (C) 2017-2023 Intel Corporation
 
 SPDX-License-Identifier: MIT
-
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types"
 ============================= end_copyright_notice ===========================*/
 
 //*****************************************************************************/

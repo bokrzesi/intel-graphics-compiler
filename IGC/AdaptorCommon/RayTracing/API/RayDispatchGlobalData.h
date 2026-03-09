@@ -13,7 +13,7 @@ SPDX-License-Identifier: MIT
 #undef HAS_INCLUDE_TYPE_TRAITS
 #ifdef _MSC_VER
 #if !defined(__clang__) || (__clang_major__ > 17)
-#define HAS_INCLUDE_TYPE_TRAITS
+//#define HAS_INCLUDE_TYPE_TRAITS
 #endif
 #endif // _MSC_VER
 #ifdef HAS_INCLUDE_TYPE_TRAITS

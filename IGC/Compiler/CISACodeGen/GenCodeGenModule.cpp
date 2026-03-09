@@ -1186,7 +1186,7 @@ public:
   using llvm::Pass::doFinalization;
   bool doFinalization(CallGraph &CG) override {
 #if LLVM_VERSION_MAJOR >= 16
-    bool Changed = IGCLLVM::removeDeadFunctions(CG);
+    //bool Changed = IGCLLVM::removeDeadFunctions(CG);
 #else
     bool Changed = LegacyInlinerBase::removeDeadFunctions(CG);
 #endif

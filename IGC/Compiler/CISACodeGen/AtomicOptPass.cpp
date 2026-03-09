@@ -71,19 +71,19 @@ bool AtomicOptPass::checkFloatAtomicEmulation(Instruction *Inst, size_t &Operand
   if (BbWithAtomic->hasNPredecessorsOrMore(3))
     return false;
 
-  BitCastInst *FirstBitcastInstr = dyn_cast<BitCastInst>(GInst->getNextNonDebugInstruction());
+  BitCastInst *FirstBitcastInstr = dyn_cast<BitCastInst>(GInst->getNextNode());
   if (!FirstBitcastInstr)
     return false;
 
-  Instruction *OpInstr = FirstBitcastInstr->getNextNonDebugInstruction();
+  Instruction *OpInstr = FirstBitcastInstr->getNextNode();
   if (!OpInstr || !OpInstr->isFast())
     return false;
 
-  BitCastInst *SecondBitcastInstr = dyn_cast<BitCastInst>(OpInstr->getNextNonDebugInstruction());
+  BitCastInst *SecondBitcastInstr = dyn_cast<BitCastInst>(OpInstr->getNextNode());
   if (!SecondBitcastInstr)
     return false;
 
-  GenIntrinsicInst *AtomicFinishInstr = dyn_cast<GenIntrinsicInst>(SecondBitcastInstr->getNextNonDebugInstruction());
+  GenIntrinsicInst *AtomicFinishInstr = dyn_cast<GenIntrinsicInst>(SecondBitcastInstr->getNextNode());
 
   if (!AtomicFinishInstr)
     return false;
@@ -91,7 +91,7 @@ bool AtomicOptPass::checkFloatAtomicEmulation(Instruction *Inst, size_t &Operand
   if (AtomicFinishInstr->getIntrinsicID() != GenISAIntrinsic::GenISA_icmpxchgatomicrawA64)
     return false;
 
-  CmpInst *CmpInstr = dyn_cast<CmpInst>(AtomicFinishInstr->getNextNonDebugInstruction());
+  CmpInst *CmpInstr = dyn_cast<CmpInst>(AtomicFinishInstr->getNextNode());
   if (!CmpInstr)
     return false;
 
@@ -151,8 +151,8 @@ bool AtomicOptPass::runOnFunction(Function &F) {
       size_t OperandPos = 0;
       // Here we check if this is an atomic instruction emulation or not.
       if (checkFloatAtomicEmulation(&I, OperandPos)) {
-        Instruction *FirstBitcastInstr = I.getNextNonDebugInstruction();
-        Instruction *MainInstr = FirstBitcastInstr->getNextNonDebugInstruction();
+        Instruction *FirstBitcastInstr = I.getNextNode();
+        Instruction *MainInstr = FirstBitcastInstr->getNextNode();
 
         BasicBlock *BbWithAtomic = I.getParent();
         BasicBlock *BackBb = nullptr;

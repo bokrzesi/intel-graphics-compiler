@@ -6000,7 +6000,7 @@ void LogicalAndToBranch::convertAndToBranch(Instruction *opAnd, Instruction *con
   BasicBlock *bb = opAnd->getParent();
   BasicBlock *bbThen, *bbElse, *bbEnd;
 
-  Instruction *splitBefore = cond0->getNextNonDebugInstruction();
+  Instruction *splitBefore = cond0->getNextNode();
   bbThen = bb->splitBasicBlock(splitBefore->getIterator(), "if.then");
   bbElse = bbThen->splitBasicBlock(opAnd, "if.else");
   bbEnd = bbElse->splitBasicBlock(opAnd, "if.end");

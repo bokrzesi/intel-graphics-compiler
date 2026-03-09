@@ -54,12 +54,13 @@ int main(int argc, char *argv[]) {
   }
 
 #if LLVM_VERSION_MAJOR < 17 || defined(IGC_LLVM_TRUNK_REVISION)
-  Context.setOpaquePointers(enableOpaquePointers);
+  //Context.setOpaquePointers(enableOpaquePointers);
 #endif
 #endif
 
   cl::ParseCommandLineOptions(argc, argv);
 
+  printf("test\n");
   auto LoadModule = [&](std::string *PathToModule) {
     SMDiagnostic Err;
     ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr = MemoryBuffer::getFileOrSTDIN(*PathToModule);

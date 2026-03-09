@@ -45,6 +45,7 @@ SPDX-License-Identifier: MIT
 #include "llvmWrapper/Transforms/IPO/GlobalDCE.h"
 #include "llvmWrapper/Transforms/Scalar/CorrelatedValuePropagation.h"
 #include "llvmWrapper/Transforms/Scalar/DeadStoreElimination.h"
+#include "llvmWrapper/Transforms/Scalar/LowerExpectIntrinsic.h"
 #include "llvmWrapper/Transforms/Scalar/LoopLoadElimination.h"
 #include "llvmWrapper/Transforms/IPO/Annotation2Metadata.h"
 #include "llvmWrapper/Transforms/IPO/ForceFunctionAttrs.h"
@@ -97,7 +98,7 @@ void PassManagerBuilder::populateFunctionPassManager(legacy::FunctionPassManager
 
   // Lower llvm.expect to metadata before attempting transforms.
   // Compare/branch metadata may alter the behavior of passes like SimplifyCFG.
-  FPM.add(createLowerExpectIntrinsicPass());
+  FPM.add(createLegacyWrappedLowerExpectIntrinsicPass());
   FPM.add(createCFGSimplificationPass());
   FPM.add(createSROAPass());
   FPM.add(createEarlyCSEPass());
@@ -135,8 +136,8 @@ void PassManagerBuilder::addFunctionSimplificationPasses(legacy::PassManagerBase
   // The simple loop unswitch pass relies on separate cleanup passes. Schedule
   // them first so when we re-process a loop they run before other loop
   // passes.
-  MPM.add(createLoopInstSimplifyPass());
-  MPM.add(createLoopSimplifyCFGPass());
+  //MPM.add(createLoopInstSimplifyPass());
+  //MPM.add(createLoopSimplifyCFGPass());
 
   // Try to remove as much code from the loop header as possible,
   // to reduce amount of IR that will have to be duplicated. However,
@@ -147,11 +148,11 @@ void PassManagerBuilder::addFunctionSimplificationPasses(legacy::PassManagerBase
   MPM.add(IGCLLVM::createLegacyWrappedLICMPass(LicmMssaOptCap, LicmMssaNoAccForPromotionCap,
                                                /*AllowSpeculation=*/false));
   // Rotate Loop - disable header duplication at -Oz
-  MPM.add(createLoopRotatePass(SizeLevel == 2 ? 0 : -1, false));
+  //MPM.add(createLoopRotatePass(SizeLevel == 2 ? 0 : -1, false));
   // TODO: Investigate promotion cap for O1.
   MPM.add(IGCLLVM::createLegacyWrappedLICMPass(LicmMssaOptCap, LicmMssaNoAccForPromotionCap,
                                                /*AllowSpeculation=*/true));
-  MPM.add(createSimpleLoopUnswitchLegacyPass(OptLevel == 3));
+  //MPM.add(createSimpleLoopUnswitchLegacyPass(OptLevel == 3));
   // FIXME: We break the loop pass pipeline here in order to do full
   // simplifycfg. Eventually loop-simplifycfg should be enhanced to replace the
   // need for this.
@@ -170,8 +171,8 @@ void PassManagerBuilder::addFunctionSimplificationPasses(legacy::PassManagerBase
   MPM.add(createSROAPass());
 
   if (OptLevel > 1) {
-    MPM.add(createMergedLoadStoreMotionPass()); // Merge ld/st in diamonds
-    MPM.add(createGVNPass(false));              // Remove redundancies
+    //MPM.add(createMergedLoadStoreMotionPass()); // Merge ld/st in diamonds
+    //MPM.add(createGVNPass(false));              // Remove redundancies
   }
   MPM.add(IGCLLVM::createLegacyWrappedSCCPPass()); // Constant prop with SCCP
 
@@ -384,12 +385,12 @@ void PassManagerBuilder::populateModulePassManager(legacy::PassManagerBase &MPM)
   MPM.add(createGlobalsAAWrapperPass());
 
   MPM.add(IGCLLVM::createLegacyWrappedFloat2IntPass());
-  MPM.add(createLowerConstantIntrinsicsPass());
+  //MPM.add(createLowerConstantIntrinsicsPass());
 
   // Re-rotate loops in all our loop nests. These may have fallout out of
   // rotated form due to GVN or other transformations, and the vectorizer relies
   // on the rotated form. Disable header duplication at -Oz.
-  MPM.add(createLoopRotatePass(SizeLevel == 2 ? 0 : -1, false));
+  //MPM.add(createLoopRotatePass(SizeLevel == 2 ? 0 : -1, false));
 
   // Distribute loops to allow partial vectorization.  I.e. isolate dependences
   // into separate loop that would otherwise inhibit vectorization.  This is
@@ -413,7 +414,7 @@ void PassManagerBuilder::populateModulePassManager(legacy::PassManagerBase &MPM)
   // canonicalization pass that enables other optimizations. As a result,
   // LoopSink pass needs to be a very late IR pass to avoid undoing LICM
   // result too early.
-  MPM.add(createLoopSinkPass());
+  //MPM.add(createLoopSinkPass());
   // Get rid of LCSSA nodes.
   MPM.add(createInstSimplifyLegacyPass());
 
