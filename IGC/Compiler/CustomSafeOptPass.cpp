@@ -75,6 +75,7 @@ cmp+sel to avoid expensive VxH mov.
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/InstIterator.h>
+#include "llvm/IR/PatternMatch.h"
 #include <llvm/Transforms/Utils/Local.h>
 #include <llvm/Transforms/Utils/BasicBlockUtils.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
@@ -3531,7 +3532,7 @@ void GenSpecificPattern::visitCastInst(CastInst &I) {
       if (isa<FPMathOperator>(srcVal) && srcVal->isFast()) {
         IRBuilder<> builder(&I);
         Function *func =
-            Intrinsic::getDeclaration(I.getParent()->getParent()->getParent(), Intrinsic::trunc, I.getType());
+            Intrinsic::getOrInsertDeclaration(I.getParent()->getParent()->getParent(), Intrinsic::trunc, I.getType());
         Value *newVal = builder.CreateCall(func, srcVal);
         I.replaceAllUsesWith(newVal);
         I.eraseFromParent();

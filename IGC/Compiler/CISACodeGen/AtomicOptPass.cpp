@@ -14,6 +14,7 @@ SPDX-License-Identifier: MIT
 #include "GenISAIntrinsics/GenIntrinsicInst.h"
 
 #include "common/LLVMWarningsPush.hpp"
+#include "llvm/IR/PatternMatch.h"
 #include "common/LLVMWarningsPop.hpp"
 
 using namespace llvm;

@@ -178,7 +178,7 @@ void GenUpdateCB::InsertInstTree(Instruction *inst, Instruction *pos) {
     cloneInst->insertBefore(pos);
 
     llvm::Function *pfunc = nullptr;
-    pfunc = GenISAIntrinsic::getDeclaration(m_ConstantBufferReplaceShaderPatterns, GenISAIntrinsic::GenISA_resinfoptr,
+    pfunc = GenISAIntrinsic::getOrInsertDeclaration(m_ConstantBufferReplaceShaderPatterns, GenISAIntrinsic::GenISA_resinfoptr,
                                             inst->getOperand(0)->getType());
     cloneInst->setCalledFunction(pfunc);
     return;
@@ -203,68 +203,68 @@ void GenUpdateCB::InsertInstTree(Instruction *inst, Instruction *pos) {
   if (CallInst *callI = dyn_cast<CallInst>(Clone)) {
     switch (GetOpCode(callI)) {
     case llvm_log:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::log2,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_sqrt:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::sqrt,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_pow:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::pow,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_cos:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::cos,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_sin:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::sin,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_exp:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::exp2,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
 
     case llvm_floor:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::floor,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_ceil:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::ceil,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_fabs:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::fabs,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_max:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::maxnum,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_min:
-      pfunc = llvm::Intrinsic::getDeclaration(
+      pfunc = llvm::Intrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, Intrinsic::minnum,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_rsq:
-      pfunc = llvm::GenISAIntrinsic::getDeclaration(
+      pfunc = llvm::GenISAIntrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, GenISAIntrinsic::GenISA_rsq,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_fsat:
-      pfunc = llvm::GenISAIntrinsic::getDeclaration(
+      pfunc = llvm::GenISAIntrinsic::getOrInsertDeclaration(
           m_ConstantBufferReplaceShaderPatterns, GenISAIntrinsic::GenISA_fsat,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
@@ -421,7 +421,7 @@ bool GenUpdateCB::runOnFunction(Function &F) {
 
         // replace original shader with read from runtime
         llvm::Function *runtimeFunc =
-            llvm::GenISAIntrinsic::getDeclaration(F.getParent(), GenISAIntrinsic::GenISA_RuntimeValue);
+            llvm::GenISAIntrinsic::getOrInsertDeclaration(F.getParent(), GenISAIntrinsic::GenISA_RuntimeValue);
         Instruction *pValue = orig_builder.CreateCall(runtimeFunc, orig_builder.getInt32(counter));
         pValue->insertBefore(inst);
 
