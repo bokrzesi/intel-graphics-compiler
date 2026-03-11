@@ -140,7 +140,7 @@ bool CustomLoopVersioning::detectLoop(Loop *loop, Value *&var_range_x, Value *&v
   BasicBlock *header = loop->getHeader();
   BasicBlock *body = loop->getLoopLatch();
 
-  Instruction *i0 = body->getFirstNonPHIOrDbg();
+  auto i0 = body->getFirstNonPHIOrDbg();
   Instruction *i1 = i0->getNextNode();
 
   CallInst *imax = dyn_cast<CallInst>(i0);
@@ -252,7 +252,7 @@ void CustomLoopVersioning::rewriteLoopSeg1(Loop *loop, Value *interval_x, Value 
 
   fcmp->setOperand(1, interval_x);
 
-  Instruction *i0 = body->getFirstNonPHIOrDbg();
+  auto i0 = body->getFirstNonPHIOrDbg();
   Instruction *i1 = i0->getNextNode();
 
   IntrinsicInst *imax = cast<IntrinsicInst>(i0);
@@ -313,9 +313,9 @@ void CustomLoopVersioning::hoistSeg2Invariant(Loop *loop, Instruction *fmul, Val
       irb.setFastMathFlags(fmul_log2->getFastMathFlags());
 
       Function *flog =
-          Intrinsic::getDeclaration(m_function->getParent(), llvm::Intrinsic::log2, intrin_log2->getType());
+          Intrinsic::getOrInsertDeclaration(m_function->getParent(), llvm::Intrinsic::log2, intrin_log2->getType());
       Function *fexp =
-          Intrinsic::getDeclaration(m_function->getParent(), llvm::Intrinsic::exp2, intrin_log2->getType());
+          Intrinsic::getOrInsertDeclaration(m_function->getParent(), llvm::Intrinsic::exp2, intrin_log2->getType());
       Value *v = irb.CreateCall(flog, cbLoad);
       v = irb.CreateFMul(fmul_log2_opnd, v);
       v = irb.CreateCall(fexp, v);

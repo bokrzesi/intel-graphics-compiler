@@ -178,7 +178,7 @@ void GenUpdateCB::InsertInstTree(Instruction *inst, Instruction *pos) {
     cloneInst->insertBefore(pos);
 
     llvm::Function *pfunc = nullptr;
-    pfunc = GenISAIntrinsic::getOrInsertDeclaration(m_ConstantBufferReplaceShaderPatterns, GenISAIntrinsic::GenISA_resinfoptr,
+    pfunc = GenISAIntrinsic::getDeclaration(m_ConstantBufferReplaceShaderPatterns, GenISAIntrinsic::GenISA_resinfoptr,
                                             inst->getOperand(0)->getType());
     cloneInst->setCalledFunction(pfunc);
     return;
@@ -259,12 +259,12 @@ void GenUpdateCB::InsertInstTree(Instruction *inst, Instruction *pos) {
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_rsq:
-      pfunc = llvm::GenISAIntrinsic::getOrInsertDeclaration(
+      pfunc = llvm::GenISAIntrinsic::getDeclaration(
           m_ConstantBufferReplaceShaderPatterns, GenISAIntrinsic::GenISA_rsq,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
     case llvm_fsat:
-      pfunc = llvm::GenISAIntrinsic::getOrInsertDeclaration(
+      pfunc = llvm::GenISAIntrinsic::getDeclaration(
           m_ConstantBufferReplaceShaderPatterns, GenISAIntrinsic::GenISA_fsat,
           llvm::ArrayRef<llvm::Type *>(Type::getFloatTy(m_ConstantBufferReplaceShaderPatterns->getContext())));
       break;
@@ -421,7 +421,7 @@ bool GenUpdateCB::runOnFunction(Function &F) {
 
         // replace original shader with read from runtime
         llvm::Function *runtimeFunc =
-            llvm::GenISAIntrinsic::getOrInsertDeclaration(F.getParent(), GenISAIntrinsic::GenISA_RuntimeValue);
+            llvm::GenISAIntrinsic::getDeclaration(F.getParent(), GenISAIntrinsic::GenISA_RuntimeValue);
         Instruction *pValue = orig_builder.CreateCall(runtimeFunc, orig_builder.getInt32(counter));
         pValue->insertBefore(inst);
 

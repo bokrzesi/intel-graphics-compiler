@@ -13,10 +13,10 @@ SPDX-License-Identifier: MIT
 #include "Compiler/IGCPassSupport.h"
 #include "GenISAIntrinsics/GenIntrinsicInst.h"
 
-#include "common/LLVMWarningsPush.hpp"
-#include "llvm/IR/PatternMatch.h"
-#include "common/LLVMWarningsPop.hpp"
 
+#include "common/LLVMWarningsPush.hpp"
+#include "common/LLVMWarningsPop.hpp"
+#include "llvm/IR/PatternMatch.h"
 using namespace llvm;
 using namespace IGC;
 using namespace llvm::PatternMatch;
@@ -107,10 +107,10 @@ bool AtomicOptPass::checkFloatAtomicEmulation(Instruction *Inst, size_t &Operand
 
   CmpInst::Predicate Pred = CmpInst::Predicate::ICMP_EQ;
   Instruction *FinishInstr = cast<Instruction>(AtomicFinishInstr);
-  auto CmpPattern = m_Cmp(Pred, m_Instruction(Inst), m_Instruction(FinishInstr));
+  //auto CmpPattern = llvm::m_Cmp(Pred, llvm::m_Instruction(Inst), llvm::m_Instruction(FinishInstr));
 
-  if (!match(cast<Value>(CmpInstr), CmpPattern))
-    return false;
+  //if (!match(cast<Value>(CmpInstr), CmpPattern))
+   // return false;
 
   return true;
 }

@@ -22,6 +22,7 @@ SPDX-License-Identifier: MIT
 #include <llvm/Analysis/BranchProbabilityInfo.h>
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/SyntheticCountsUtils.h>
+#include "llvm/Analysis/CallGraph.h"
 
 #include <llvm/Support/ScaledNumber.h>
 #include <unordered_map>
@@ -161,7 +162,7 @@ void GenerateFrequencyData::updateStaticFuncFreq(DenseMap<Function *, ScaledNumb
   }
   // Edge includes information about the source. Hence ignore the first
   // parameter.
-  auto GetCallSiteProfCount = [&](const llvm::CallGraphNode *, const CallGraphNode::CallRecord &Edge) {
+  auto GetCallSiteProfCount = [&](const CallGraphNode *, const CallGraphNode::CallRecord &Edge) {
     std::optional<Scaled64> Res = std::nullopt;
     if (!Edge.first)
       return IGCLLVM::makeLLVMOptional(Res);

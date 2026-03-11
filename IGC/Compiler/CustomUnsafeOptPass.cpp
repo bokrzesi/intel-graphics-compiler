@@ -1214,7 +1214,7 @@ bool CustomUnsafeOptPass::visitBinaryOperatorDivRsq(BinaryOperator &I) {
       if (ConstantFP *fp0 = dyn_cast<ConstantFP>(I.getOperand(0))) {
         llvm::IRBuilder<> builder(I.getContext());
         llvm::CallInst *sqrt_call = llvm::IntrinsicInst::Create(
-            llvm::Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::sqrt, builder.getFloatTy()),
+            llvm::Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::sqrt, builder.getFloatTy()),
             genIntr->getOperand(0), "", &I);
 
         if (fp0->isExactlyValue(1.0)) {
@@ -2064,7 +2064,7 @@ void CustomUnsafeOptPass::strengthReducePowOrExpLog(IntrinsicInst *intrin, Value
   irb.setFastMathFlags(intrin->getFastMathFlags());
   if (exponent == ConstantFP::get(exponent->getType(), 0.5)) {
     // pow(x, 0.5) -> sqrt(x)
-    llvm::Function *sqrtIntr = llvm::Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::sqrt, base->getType());
+    llvm::Function *sqrtIntr = llvm::Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::sqrt, base->getType());
     llvm::CallInst *sqrt = irb.CreateCall(sqrtIntr, base);
     intrin->replaceAllUsesWith(sqrt);
     collectForErase(*intrin);
@@ -2111,8 +2111,8 @@ void CustomUnsafeOptPass::strengthReducePowOrExpLog(IntrinsicInst *intrin, Value
     collectForErase(*intrin);
   } else if (isPow && IGC_IS_FLAG_ENABLED(EnablePowToLogMulExp)) {
     // pow(x, y) -> exp2(log2(x) * y)
-    Function *logf = Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::log2, base->getType());
-    Function *expf = Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::exp2, base->getType());
+    Function *logf = Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::log2, base->getType());
+    Function *expf = Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::exp2, base->getType());
     CallInst *logv = irb.CreateCall(logf, base);
     Value *mulv = irb.CreateFMul(logv, exponent);
     CallInst *expv = irb.CreateCall(expf, mulv);

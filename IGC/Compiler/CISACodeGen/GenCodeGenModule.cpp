@@ -34,6 +34,7 @@ SPDX-License-Identifier: MIT
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/InstVisitor.h"
 #include "llvm/Transforms/IPO.h"
+#include "llvm/Analysis/CallGraphSCCPass.h"
 #include "llvm/Transforms/IPO/Inliner.h"
 #include "llvm/IR/DebugInfo.h"
 #include "llvm/IR/DIBuilder.h"
@@ -133,7 +134,7 @@ void GenXCodeGenModule::detectUnpromotableFunctions(Module *pM) {
   // Find functions that have uses of "localSLM" globals
   for (auto gi = pM->global_begin(), ge = pM->global_end(); gi != ge; gi++) {
     GlobalVariable *GV = dyn_cast<GlobalVariable>(gi);
-    if (GV && GV->hasSection() && GV->getSection().equals("localSLM")) {
+    if (GV && GV->hasSection() && GV->getSection() == ("localSLM")) {
       for (auto user : GV->users()) {
         if (Instruction *U = dyn_cast<Instruction>(user)) {
           Function *pF = U->getParent()->getParent();
@@ -186,7 +187,7 @@ void GenXCodeGenModule::processFunction(Function &F) {
 
   std::vector<llvm::Function *> Callers;
   if (IGC_IS_FLAG_ENABLED(StackOverflowDetection)) {
-    if (F.getName().equals("__stackoverflow_detection")) {
+    if (F.getName() == ("__stackoverflow_detection")) {
       // Mark all stack calls as users of this detection function.
       // It will be used as a subroutine, so it needs to be cloned for
       // each of stack call functions.
@@ -1185,6 +1186,7 @@ public:
 
   using llvm::Pass::doFinalization;
   bool doFinalization(CallGraph &CG) override {
+    bool Changed = false;
 #if LLVM_VERSION_MAJOR >= 16
     //bool Changed = IGCLLVM::removeDeadFunctions(CG);
 #else

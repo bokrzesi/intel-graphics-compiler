@@ -277,8 +277,8 @@ bool FPRoundingModeCoalescingImpl::tryMove(Instruction &ToMove, FPRoundingModeGr
   // Next, find first instruction before group switching RM that is NOT an user
   // of instruction to move. This will be an insert point.
   Instruction *InsertPoint = nullptr;
-  for (Instruction *I = Group.getHead()->getPrevNonDebugInstruction(); I != &ToMove;
-       I = I->getPrevNonDebugInstruction()) {
+  for (Instruction *I = Group.getHead()->getPrevNode(); I != &ToMove;
+       I = I->getPrevNode()) {
     if (!ignoresRoundingMode(I) && Users.count(I) == 0) {
       InsertPoint = I;
       break;

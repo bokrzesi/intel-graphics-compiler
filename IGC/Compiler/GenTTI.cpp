@@ -651,7 +651,7 @@ void GenIntrinsicsTTIImpl::getPeelingPreferences(Loop *L, ScalarEvolution &SE,
     for (unsigned i = 0; i < LoopID->getNumOperands(); ++i) {
       if (MDNode *MD = llvm::dyn_cast<MDNode>(LoopID->getOperand(i))) {
         if (MDString *S = llvm::dyn_cast<MDString>(MD->getOperand(0))) {
-          if (peelCountMetadataNames.equals(S->getString())) {
+          if (peelCountMetadataNames == (S->getString())) {
             PP.AllowPeeling = true;
             PP.PeelCount = static_cast<unsigned>(mdconst::extract<ConstantInt>(MD->getOperand(1))->getZExtValue());
           }

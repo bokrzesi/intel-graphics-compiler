@@ -50,7 +50,9 @@ static LoadInst *legalizeLoad(LoadInst *LI) {
 
   PointerType *ptrTy = cast<PointerType>(LI->getPointerOperand()->getType());
   unsigned addressSpace = ptrTy->getAddressSpace();
-  PointerType *I8PtrTy = IRB.getInt8PtrTy(addressSpace);
+  
+  auto &DL = LI->getModule()->getDataLayout();
+  PointerType *I8PtrTy = IRB.getIntPtrTy(DL, addressSpace);
   Value *I8PtrOp = IRB.CreateBitCast(LI->getPointerOperand(), I8PtrTy);
 
   LoadInst *pNewLoadInst = IGC::cloneLoad(LI, IRB.getInt8Ty(), I8PtrOp);
@@ -71,7 +73,7 @@ static StoreInst *legalizeStore(StoreInst *SI) {
 
   PointerType *ptrTy = cast<PointerType>(SI->getPointerOperand()->getType());
   unsigned addressSpace = ptrTy->getAddressSpace();
-  PointerType *I8PtrTy = IRB.getInt8PtrTy(addressSpace);
+  PointerType *I8PtrTy = IRB.getIntPtrTy(addressSpace);
   Value *I8PtrOp = IRB.CreateBitCast(SI->getPointerOperand(), I8PtrTy);
 
   auto *NewSI = IGC::cloneStore(SI, newVal, I8PtrOp);
@@ -146,7 +148,7 @@ bool RaytracingStatefulPass::runOnFunction(Function &F) {
     auto *ResourceOffset = RTB.CreateAdd(BaseSSHOffset, RTB.getIntN(BitWidth, BaseOffset));
 
     auto *Offset = RTB.CreatePtrToInt(PointerOp, RTB.getInt32Ty());
-    auto *ResourcePtr = RTB.CreateIntToPtr(ResourceOffset, RTB.getInt8PtrTy(Addrspace));
+    auto *ResourcePtr = RTB.CreateIntToPtr(ResourceOffset, RTB.getIntPtrTy(Addrspace));
 
     if (auto *LI = dyn_cast<LoadInst>(I)) {
       LI = legalizeLoad(LI);

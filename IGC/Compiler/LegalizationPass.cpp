@@ -259,7 +259,7 @@ void Legalization::visitBinaryOperator(llvm::BinaryOperator &I) {
   if (I.getOpcode() == Instruction::FRem && (I.getType()->isFloatTy() || I.getType()->isHalfTy())) {
     bool hasFP16Floor = !m_ctx->platform.supportFP16Rounding();
     Type *floorType = hasFP16Floor ? I.getType() : m_builder->getFloatTy();
-    Function *floorFunc = Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::floor, floorType);
+    Function *floorFunc = Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::floor, floorType);
     m_builder->SetInsertPoint(&I);
     Value *a = I.getOperand(0);
     Value *b = I.getOperand(1);
@@ -1213,7 +1213,7 @@ void Legalization::visitStoreInst(StoreInst &I) {
 
     PointerType *ptrTy = cast<PointerType>(I.getPointerOperand()->getType());
     unsigned addressSpace = ptrTy->getAddressSpace();
-    PointerType *I8PtrTy = m_builder->getInt8PtrTy(addressSpace);
+    PointerType *I8PtrTy = m_builder->getIntPtrTy(addressSpace);
     Value *I8PtrOp = m_builder->CreateBitCast(I.getPointerOperand(), I8PtrTy);
 
     IGC::cloneStore(&I, newVal, I8PtrOp);
@@ -1276,7 +1276,7 @@ void Legalization::visitLoadInst(LoadInst &I) {
     m_builder->SetInsertPoint(&I);
     PointerType *ptrTy = cast<PointerType>(I.getPointerOperand()->getType());
     unsigned addressSpace = ptrTy->getAddressSpace();
-    PointerType *I8PtrTy = m_builder->getInt8PtrTy(addressSpace);
+    PointerType *I8PtrTy = m_builder->getIntPtrTy(addressSpace);
     Value *I8PtrOp = m_builder->CreateBitCast(I.getPointerOperand(), I8PtrTy);
 
     LoadInst *pNewLoadInst = IGC::cloneLoad(&I, m_builder->getInt8Ty(), I8PtrOp);
@@ -1836,7 +1836,7 @@ void Legalization::visitIntrinsicInst(llvm::IntrinsicInst &I) {
       // demote back.
       Value *Val = Builder.CreateFPExt(I.getOperand(0), Builder.getFloatTy());
       Value *Callee =
-          Intrinsic::getDeclaration(I.getParent()->getParent()->getParent(), intrinsicID, Builder.getFloatTy());
+          Intrinsic::getOrInsertDeclaration(I.getParent()->getParent()->getParent(), intrinsicID, Builder.getFloatTy());
       Val = Builder.CreateCall(Callee, ArrayRef<Value *>(Val));
       Val = Builder.CreateFPTrunc(Val, I.getType());
       I.replaceAllUsesWith(Val);
