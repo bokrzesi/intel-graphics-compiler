@@ -28,7 +28,6 @@ enum Flags {
 };
 
 namespace api {
-
 enum ID {
   OPT_INVALID = 0,
 #if LLVM_VERSION_MAJOR >= 22
@@ -63,4 +62,5 @@ enum ID {
 const llvm::opt::OptTable &getApiOptTable();
 const llvm::opt::OptTable &getInternalOptTable();
 } // namespace IGC
+
 #endif
