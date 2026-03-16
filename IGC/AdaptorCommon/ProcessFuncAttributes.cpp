@@ -521,7 +521,7 @@ bool ProcessFuncAttributes::runOnModule(Module &M) {
       // builtins should not be externally linked, they will always be resolved by IGC
       return !(F->hasFnAttribute("OclBuiltin") || F->getName().starts_with("__builtin_") ||
                F->getName().starts_with("__igcbuiltin_") || F->getName().starts_with("llvm.") ||
-               F->getName().equals("printf") || Regex("^_Z[0-9]+__builtin_bf16").match(F->getName()) ||
+               F->getName()==("printf") || Regex("^_Z[0-9]+__builtin_bf16").match(F->getName()) ||
                Regex("^_Z[0-9]+__spirv_").match(F->getName()) || Regex("^_Z[0-9]+__builtin_spirv").match(F->getName()));
     }
     return false;
@@ -913,15 +913,15 @@ bool ProcessFuncAttributes::runOnModule(Module &M) {
           if (sline.trim().empty() || sline.starts_with("//"))
             continue;
 
-          if (sline.equals("FLAG_FCALL_DEFAULT:"))
+          if (sline==("FLAG_FCALL_DEFAULT:"))
             FunctionControlMode = FLAG_FCALL_DEFAULT;
-          else if (sline.equals("FLAG_FCALL_FORCE_INLINE:"))
+          else if (sline==("FLAG_FCALL_FORCE_INLINE:"))
             FunctionControlMode = FLAG_FCALL_FORCE_INLINE;
-          else if (sline.equals("FLAG_FCALL_FORCE_SUBROUTINE:"))
+          else if (sline==("FLAG_FCALL_FORCE_SUBROUTINE:"))
             FunctionControlMode = FLAG_FCALL_FORCE_SUBROUTINE;
-          else if (sline.equals("FLAG_FCALL_FORCE_STACKCALL:"))
+          else if (sline==("FLAG_FCALL_FORCE_STACKCALL:"))
             FunctionControlMode = FLAG_FCALL_FORCE_STACKCALL;
-          else if (sline.equals("FLAG_FCALL_FORCE_INDIRECTCALL:"))
+          else if (sline==("FLAG_FCALL_FORCE_INDIRECTCALL:"))
             FunctionControlMode = FLAG_FCALL_FORCE_INDIRECTCALL;
 
           else if (Function *F = M.getFunction(line)) {

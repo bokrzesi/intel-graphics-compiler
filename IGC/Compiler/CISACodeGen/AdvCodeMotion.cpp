@@ -18,6 +18,7 @@ SPDX-License-Identifier: MIT
 #include <llvm/Pass.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Transforms/Utils/Local.h>
+#include <llvm/IR/CmpPredicate.h>
 #include "common/LLVMWarningsPop.hpp"
 
 #include "Compiler/CISACodeGen/ShaderCodeGen.hpp"
@@ -200,7 +201,7 @@ void WorkItemSetting::collect(Function *F) {
       auto Inst = &*BI;
       // GlobalSize.X = (GlobalSize1.X == 0) ? X : GlobalSize1.X
       Value *X = nullptr;
-      ICmpInst::Predicate Pred;
+      CmpPredicate Pred();
       if (match(Inst,
                 m_Select(m_ICmp(Pred, m_Specific(GlobalSize1.X), m_Zero()), m_Value(X), m_Specific(GlobalSize1.X))) &&
           Pred == ICmpInst::ICMP_EQ) {

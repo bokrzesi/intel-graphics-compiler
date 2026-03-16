@@ -183,7 +183,7 @@ bool ExtensionArgAnalysis::runOnFunction(Function &F) {
   m_extensionType = ResourceExtensionTypeEnum::NonExtensionType;
 
   for (int func = VA_FUNCTION_ERODE; func < NUM_VA_FUNCTIONS; ++func) {
-    if (funcName.equals(VA_FUNCTION_STRINGS[func])) {
+    if (funcName==(VA_FUNCTION_STRINGS[func])) {
       // First function arg is the src image, second is the sampler,
       // and third arg is output buffer (ignored by this analysis).
       auto arg = F.arg_begin();

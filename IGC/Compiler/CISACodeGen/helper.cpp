@@ -2240,7 +2240,7 @@ void appendToUsed(llvm::Module &M, ArrayRef<GlobalValue *> Values) {
       GV->eraseFromParent();
   }
 
-  auto Int8PtrTy = llvm::Type::getInt8PtrTy(M.getContext());
+  auto Int8PtrTy = llvm::Type::getIntPtrTy(M.getContext());
   for (auto *V : Values) {
     Constant *C = V;
     // llvm will complain if members of llvm.uses doesn't have a name

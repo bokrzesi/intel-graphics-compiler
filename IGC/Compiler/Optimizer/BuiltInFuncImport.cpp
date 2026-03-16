@@ -423,8 +423,8 @@ void BIImport::fixSPIRFunctionsReturnType(Module &M) {
     if (F.isDeclaration()) {
       auto FuncName = F.getName();
 
-      if (FuncName.equals("intel_is_traversal_done") || FuncName.equals("intel_get_hit_front_face") ||
-          FuncName.equals("intel_has_committed_hit")) {
+      if (FuncName==("intel_is_traversal_done") || FuncName==("intel_get_hit_front_face") ||
+          FuncName==("intel_has_committed_hit")) {
         if (!F.getReturnType()->isIntegerTy(8))
           continue;
 

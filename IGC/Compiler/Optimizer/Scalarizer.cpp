@@ -872,7 +872,7 @@ void ScalarizeFunction::ScalarizeIntrinsic(IntrinsicInst &II) {
     for (unsigned j = 0; j < NumOperands; j++)
       ScalarOperands[j] = Operands[j][i];
 
-    auto *ScalarIntr = CallInst::Create(Intrinsic::getDeclaration(II.getModule(), II.getIntrinsicID(), {ScalarType}),
+    auto *ScalarIntr = CallInst::Create(Intrinsic::getOrInsertDeclaration(II.getModule(), II.getIntrinsicID(), {ScalarType}),
                                         ScalarOperands, II.getName() + ".scalar", &II);
     ScalarIntr->copyMetadata(II);
     NewScalarizedInsts[i] = ScalarIntr;

@@ -71,7 +71,7 @@ void PreprocessSPVIR::visitOpenCLEISPrintf(llvm::CallInst &CI) {
   #if LLVM_VERSION_MAJOR >= 18
     FT = FunctionType::get(CI.getType(), {PointerType::getUnqual(m_Module->getContext())}, true);
   #else
-    FT = FunctionType::get(CI.getType(), Type::getInt8PtrTy(m_Module->getContext(), 2), true);
+    FT = FunctionType::get(CI.getType(), Type::getIntPtrTy(m_Module->getContext(), 2), true);
   #endif
   Function *newPrintf = cast<Function>(m_Module->getOrInsertFunction("printf", FT));
   CI.setCalledFunction(newPrintf);

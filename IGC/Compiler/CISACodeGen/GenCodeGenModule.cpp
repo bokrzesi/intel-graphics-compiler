@@ -43,6 +43,7 @@ SPDX-License-Identifier: MIT
 #include "llvmWrapper/IR/DerivedTypes.h"
 #include "DebugInfo/VISADebugEmitter.hpp"
 //#include "llvmWrapper/Transforms/IPO/InlineHelper.h"
+#include "llvm/Analysis/TargetLibraryInfo.h"
 #include <numeric>
 #include <utility>
 #include "Probe/Assertion.h"

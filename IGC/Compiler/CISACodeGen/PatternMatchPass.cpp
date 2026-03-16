@@ -6030,7 +6030,7 @@ static bool isIntegerAbs(SelectInst *SI, e_modifier &mod, Value *&source) {
   Value *TVal = SI->getOperand(1);
   Value *FVal = SI->getOperand(2);
 
-  ICmpInst::Predicate IPred = FCmpInst::FCMP_FALSE;
+  CmpPredicate IPred(CmpInst::Predicate::FCMP_FALSE);
   Value *LHS = nullptr;
   Value *RHS = nullptr;
 

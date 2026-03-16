@@ -365,7 +365,7 @@ void SubGroupFuncsResolution::simdBlockRead(llvm::CallInst &CI, bool hasCacheCon
 
   switch (scalarSizeInBits) {
   case 8:
-    types[1] = Type::getInt8PtrTy(C, AS);
+    types[1] = Type::getIntPtrTy(C, AS);
     break;
   case 16:
     types[1] = Type::getInt16PtrTy(C, AS);
@@ -447,7 +447,7 @@ void SubGroupFuncsResolution::simdBlockWrite(llvm::CallInst &CI, bool hasCacheCo
 
   switch (dataArg->getType()->getScalarType()->getScalarSizeInBits()) {
   case 8:
-    types.push_back(Type::getInt8PtrTy(C, AS));
+    types.push_back(Type::getIntPtrTy(C, AS));
     break;
   case 16:
     types.push_back(Type::getInt16PtrTy(C, AS));

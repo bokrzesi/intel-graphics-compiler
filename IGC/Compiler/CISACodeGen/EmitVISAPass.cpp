@@ -999,7 +999,7 @@ bool EmitPass::runOnFunction(llvm::Function &F) {
         unsigned int curLineNumber = llvmInst->getDebugLoc().getLine();
         auto &&srcFile = llvmInst->getDebugLoc()->getScope()->getFilename();
         auto &&srcDir = llvmInst->getDebugLoc()->getScope()->getDirectory();
-        if (!curSrcFile == (srcFile) || !(curSrcDir == srcDir)) {
+        if (!(curSrcFile == (srcFile)) || !(curSrcDir == srcDir)) {
           curSrcFile = srcFile;
           curSrcDir = srcDir;
           m_pDebugEmitter->BeginEncodingMark();
@@ -9453,7 +9453,7 @@ bool EmitPass::validateInlineAsmConstraints(llvm::CallInst *inst, SmallVector<St
 void EmitPass::EmitInlineAsm(llvm::CallInst *inst) {
   std::stringstream &str = m_encoder->GetVISABuilder()->GetAsmTextStream();
   InlineAsm *IA = cast<InlineAsm>(IGCLLVM::getCalledValue(inst));
-  string asmStr = IA->getAsmString();
+  string asmStr = IA->getAsmString().str();
   smallvector<CVariable *, 8> opnds;
   SmallVector<StringRef, 8> constraints;
   DenseMap<CVariable *, Instruction *> DstOpndMap;
@@ -9532,7 +9532,7 @@ void EmitPass::EmitInlineAsm(llvm::CallInst *inst) {
     }
     // Special handling if LLVM replaces a variable with an immediate, we need
     // to insert an extra move
-    else if (opVar->IsImmediate() && !constraint == ("i") && !constraint == ("P")) {
+    else if (opVar->IsImmediate() && !(constraint == ("i")) && !(constraint == ("P"))) {
       CVariable *tempMov = m_currShader->GetNewVariable(1, opVar->GetType(), EALIGN_GRF, true, opVar->getName());
       m_encoder->Copy(tempMov, opVar);
       m_encoder->Push();
