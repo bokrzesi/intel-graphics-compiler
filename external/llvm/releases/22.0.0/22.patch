@@ -102,6 +102,20 @@ index b22177c9e6c2..00780513a439 100644
    LLVM_ABI static PointerType *get(Type *ElementType, unsigned AddressSpace);
    /// This constructs an opaque pointer to an object in a numbered address
    /// space.
+diff --git a/llvm/include/llvm/IR/IRBuilder.h b/llvm/include/llvm/IR/IRBuilder.h
+index bc35caabeb84..4775df8d59d3 100644
+--- a/llvm/include/llvm/IR/IRBuilder.h
++++ b/llvm/include/llvm/IR/IRBuilder.h
+@@ -611,6 +611,9 @@ public:
+   IntegerType *getIntPtrTy(const DataLayout &DL, unsigned AddrSpace = 0) {
+     return DL.getIntPtrType(Context, AddrSpace);
+   }
++  IntegerType *getInt8PtrTy(const DataLayout &DL, unsigned AddrSpace = 0) {
++    return DL.getIntPtrType(Context, AddrSpace);
++  }
+ 
+   /// Fetch the type of an integer that should be used to index GEP operations
+   /// within AddressSpace.
 diff --git a/llvm/include/llvm/IR/Instruction.h b/llvm/include/llvm/IR/Instruction.h
 index 11385666e7ff..4fd3b07ba41a 100644
 --- a/llvm/include/llvm/IR/Instruction.h
@@ -145,6 +159,28 @@ index 11385666e7ff..4fd3b07ba41a 100644
  
  private:
    /// RemoveDIs project: all other moves implemented with this method,
+diff --git a/llvm/include/llvm/IR/Intrinsics.h b/llvm/include/llvm/IR/Intrinsics.h
+index 2c86a43e114e..97995cb1e7a0 100644
+--- a/llvm/include/llvm/IR/Intrinsics.h
++++ b/llvm/include/llvm/IR/Intrinsics.h
+@@ -108,6 +108,8 @@ namespace Intrinsic {
+   /// the intrinsic.
+   LLVM_ABI Function *getOrInsertDeclaration(Module *M, ID id,
+                                             ArrayRef<Type *> Tys = {});
++  LLVM_ABI Function *getDeclaration(Module *M, ID id,
++                                            ArrayRef<Type *> Tys = {});
+ 
+   /// Look up the Function declaration of the intrinsic \p IID in the Module
+   /// \p M. If it does not exist, add a declaration and return it. Otherwise,
+@@ -123,6 +125,8 @@ namespace Intrinsic {
+   /// \param ArgTys - The argument types of the intrinsic.
+   LLVM_ABI Function *getOrInsertDeclaration(Module *M, ID IID, Type *RetTy,
+                                             ArrayRef<Type *> ArgTys);
++  LLVM_ABI Function *getDeclaration(Module *M, ID IID, Type *RetTy,
++                                            ArrayRef<Type *> ArgTys);
+ 
+   /// Look up the Function declaration of the intrinsic \p id in the Module
+   /// \p M and return it if it exists. Otherwise, return nullptr. This version
 diff --git a/llvm/include/llvm/IR/Type.h b/llvm/include/llvm/IR/Type.h
 index 1c042500ba8e..9f5379a9cafc 100644
 --- a/llvm/include/llvm/IR/Type.h
@@ -157,3 +193,51 @@ index 1c042500ba8e..9f5379a9cafc 100644
        PointerType *getPointerTo(unsigned AddrSpace = 0) const;
  
  private:
+diff --git a/llvm/lib/IR/Intrinsics.cpp b/llvm/lib/IR/Intrinsics.cpp
+index f46d3e5063e4..85beda14110d 100644
+--- a/llvm/lib/IR/Intrinsics.cpp
++++ b/llvm/lib/IR/Intrinsics.cpp
+@@ -789,6 +789,43 @@ Function *Intrinsic::getOrInsertDeclaration(Module *M, ID id, Type *RetTy,
+   return getOrInsertIntrinsicDeclarationImpl(M, id, OverloadTys, FTy);
+ }
+ 
++Function *Intrinsic::getDeclaration(Module *M, ID id,
++                                            ArrayRef<Type *> Tys) {
++  // There can never be multiple globals with the same name of different types,
++  // because intrinsics must be a specific type.
++  FunctionType *FT = getType(M->getContext(), id, Tys);
++  return getOrInsertIntrinsicDeclarationImpl(M, id, Tys, FT);
++}
++
++Function *Intrinsic::getDeclaration(Module *M, ID id, Type *RetTy,
++                                            ArrayRef<Type *> ArgTys) {
++  // If the intrinsic is not overloaded, use the non-overloaded version.
++  if (!Intrinsic::isOverloaded(id))
++    return getOrInsertDeclaration(M, id);
++
++  // Get the intrinsic signature metadata.
++  SmallVector<Intrinsic::IITDescriptor, 8> Table;
++  getIntrinsicInfoTableEntries(id, Table);
++  ArrayRef<Intrinsic::IITDescriptor> TableRef = Table;
++
++  FunctionType *FTy = FunctionType::get(RetTy, ArgTys, /*isVarArg=*/false);
++
++  // Automatically determine the overloaded types.
++  SmallVector<Type *, 4> OverloadTys;
++  [[maybe_unused]] Intrinsic::MatchIntrinsicTypesResult Res =
++      matchIntrinsicSignature(FTy, TableRef, OverloadTys);
++  assert(Res == Intrinsic::MatchIntrinsicTypes_Match &&
++         "intrinsic signature mismatch");
++
++  // If intrinsic requires vararg, recreate the FunctionType accordingly.
++  if (!matchIntrinsicVarArg(/*isVarArg=*/true, TableRef))
++    FTy = FunctionType::get(RetTy, ArgTys, /*isVarArg=*/true);
++
++  assert(TableRef.empty() && "Unprocessed descriptors remain");
++
++  return getOrInsertIntrinsicDeclarationImpl(M, id, OverloadTys, FTy);
++}
++
+ Function *Intrinsic::getDeclarationIfExists(const Module *M, ID id) {
+   return M->getFunction(getName(id));
+ }
