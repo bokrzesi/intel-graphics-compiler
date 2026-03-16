@@ -75,6 +75,7 @@ cmp+sel to avoid expensive VxH mov.
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/InstIterator.h>
+#include "llvm/IR/PatternMatch.h"
 #include <llvm/Transforms/Utils/Local.h>
 #include <llvm/Transforms/Utils/BasicBlockUtils.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
@@ -152,7 +153,7 @@ void CustomSafeOptPass::visitInstruction(Instruction &I) {
 void CustomSafeOptPass::visitXor(Instruction &XorInstr) {
   using namespace llvm::PatternMatch;
 
-  CmpInst::Predicate Pred = CmpInst::Predicate::FCMP_FALSE;
+  CmpPredicate Pred(CmpInst::Predicate::FCMP_FALSE);
   auto XorPattern = m_c_Xor(m_ICmp(Pred, m_Value(), m_Value()), m_SpecificInt(1));
   if (!match(&XorInstr, XorPattern)) {
     return;
@@ -206,7 +207,7 @@ void CustomSafeOptPass::visitXor(Instruction &XorInstr) {
     NewCmpInst->setDebugLoc(DL);
     auto *Val = static_cast<Value *>(ICmpInstr);
     SmallVector<DbgValueInst *, 1> DbgValues;
-    llvm::findDbgValues(DbgValues, Val);
+    // TODO Fix it: llvm::findDbgValues(DbgValues, Val);
     for (auto DV : DbgValues) {
       DIExpression *OldExpr = DV->getExpression();
       DIExpression *NewExpr =
@@ -244,7 +245,7 @@ void CustomSafeOptPass::visitAnd(BinaryOperator &I) {
   }
 
   Value *XorArgValue = nullptr;
-  CmpInst::Predicate Pred = CmpInst::Predicate::FCMP_FALSE;
+  CmpPredicate Pred(CmpInst::Predicate::FCMP_FALSE);
   auto AndPattern = m_c_And(m_c_Xor(m_Value(XorArgValue), m_SpecificInt(1)), m_ICmp(Pred, m_Value(), m_Value()));
   if (!match(&I, AndPattern))
     return;
@@ -266,7 +267,7 @@ void CustomSafeOptPass::visitAnd(BinaryOperator &I) {
     NewOrInst->setDebugLoc(DL);
     auto *Val = static_cast<Value *>(&I);
     SmallVector<DbgValueInst *, 1> DbgValues;
-    llvm::findDbgValues(DbgValues, Val);
+    // TODO: fix it llvm::findDbgValues(DbgValues, Val);
     for (auto DV : DbgValues) {
       DIExpression *OldExpr = DV->getExpression();
       DIExpression *NewExpr =
@@ -888,7 +889,7 @@ void CustomSafeOptPass::visitAllocaInst(AllocaInst &I) {
 
   // A debug line info is moved so the alloca has corresponding dbg.declare call
   // with DIExpression DW_OP_LLVM_fragment specifying fragment.
-  TinyPtrVector<DbgDeclareInst *> Dbgs = llvm::FindDbgDeclareUses(&I);
+  auto Dbgs = llvm::FindDbgDeclareUses(&I);
   unsigned typeSize = (unsigned)pType->getArrayElementType()->getPrimitiveSizeInBits();
   if (!Dbgs.empty()) {
     const DebugLoc DL = I.getDebugLoc();
@@ -3262,7 +3263,7 @@ void GenSpecificPattern::visitOr(BinaryOperator &I) {
 
 void GenSpecificPattern::visitCmpInst(CmpInst &I) {
   using namespace llvm::PatternMatch;
-  CmpInst::Predicate Pred = CmpInst::Predicate::BAD_ICMP_PREDICATE;
+  CmpPredicate Pred(CmpInst::Predicate::BAD_ICMP_PREDICATE);
   Value *Val1 = nullptr;
   uint64_t const_int1 = 0, const_int2 = 0;
   auto cmp_pattern = m_Cmp(Pred, m_And(m_Value(Val1), m_ConstantInt(const_int1)), m_ConstantInt(const_int2));
@@ -3658,7 +3659,7 @@ void GenSpecificPattern::visitZExtInst(ZExtInst &ZEI) {
     return;
 
   using namespace llvm::PatternMatch;
-  CmpInst::Predicate pred = CmpInst::Predicate::FCMP_FALSE;
+  CmpPredicate pred(CmpInst::Predicate::FCMP_FALSE);
   Instruction *I1 = nullptr;
   Instruction *I2 = nullptr;
   Instruction *I3 = nullptr;
