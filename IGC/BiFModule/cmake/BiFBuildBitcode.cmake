@@ -190,7 +190,7 @@ function(igc_bif_build_bc)
     # forcibly included headers or change of additional dependencies.
     execute_process(
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${_outBcFileDir}"
-        COMMAND ${clang-tool} -cc1 ${IGC_BUILD__OPAQUE_POINTERS_DEFAULT_ARG_CLANG} -x cl -fblocks -Wno-incompatible-pointer-types -fpreserve-vec3-type -opencl-builtins "-triple=${_archTriple}" -w -emit-llvm-bc -discard-value-names -o "${_bcTempFilePath}" ${_pchFlags} ${_incFileFlags} ${_includeDirsFlags} ${_defineFlags} ${_options_DEFAULT} ${_options_CL} "${_srcFilePath}"
+        COMMAND ${clang-tool} -cc1 ${IGC_BUILD__OPAQUE_POINTERS_DEFAULT_ARG_CLANG} -x cl -fblocks -Wno-incompatible-pointer-types -opencl-builtins "-triple=${_archTriple}" -w -emit-llvm-bc -discard-value-names -o "${_bcTempFilePath}" ${_pchFlags} ${_incFileFlags} ${_includeDirsFlags} ${_defineFlags} ${_options_DEFAULT} ${_options_CL} "${_srcFilePath}"
     COMMAND_ECHO STDOUT
       )
     execute_process(
