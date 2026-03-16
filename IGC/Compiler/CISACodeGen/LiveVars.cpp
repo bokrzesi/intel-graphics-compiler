@@ -108,9 +108,9 @@ void LiveVars::preAllocMemory(Function &F) {
   uint32_t mapCap1 = int_cast<uint32_t>((size_t)(nVals * 1.40f));
   // For PHIVarInfo, increase 10% only.
   uint32_t mapCap2 = int_cast<uint32_t>((size_t)(F.size() * 1.10f));
-  DistanceMap.grow(mapCap1);
-  VirtRegInfo.grow(mapCap1);
-  PHIVarInfo.grow(mapCap2);
+  //DistanceMap.grow(mapCap1);
+  //VirtRegInfo.grow(mapCap1);
+  //PHIVarInfo.grow(mapCap2);
 }
 
 void LiveVars::dump() const { print(ods()); }
@@ -631,11 +631,11 @@ bool LiveVars::hasInterference(llvm::Value *V0, llvm::Value *V1) {
 
   if (!I0) {
     // V0 must be argument. Use the first inst in Entry
-    I0 = MF->getEntryBlock().getFirstNonPHIOrDbg();
+    I0 = &*(MF->getEntryBlock().getFirstNonPHIOrDbg());
   }
   if (!I1) {
     // V1 must be argument. Use the first inst in Entry
-    I1 = MF->getEntryBlock().getFirstNonPHIOrDbg();
+    I1 = &*(MF->getEntryBlock().getFirstNonPHIOrDbg());
   }
 
   if (isLiveAt(V0, I1) || isLiveAt(V1, I0)) {

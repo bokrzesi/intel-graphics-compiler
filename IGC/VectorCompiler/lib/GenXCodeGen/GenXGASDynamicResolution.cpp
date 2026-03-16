@@ -183,7 +183,7 @@ static void createScatterWithNewAS(IntrinsicInst &OldScatter,
     Mask = IRB.CreateAnd(UpdateMask, Mask);
   PtrOp = createASCast(IRB, PtrOp, NewAS);
 
-  auto Func = Intrinsic::getDeclaration(OldScatter.getModule(),
+  auto Func =(OldScatter.getModule(),
                                         Intrinsic::masked_scatter,
                                         {Val->getType(), PtrOp->getType()});
   IRB.CreateCall(Func, {Val, PtrOp, Align, Mask});
@@ -204,7 +204,7 @@ static IntrinsicInst *createGatherWithNewAS(IntrinsicInst &OldGather,
   PtrOp = createASCast(IRB, PtrOp, NewAS);
 
   auto Func =
-      Intrinsic::getDeclaration(OldGather.getModule(), Intrinsic::masked_gather,
+     (OldGather.getModule(), Intrinsic::masked_gather,
                                 {OldGather.getType(), PtrOp->getType()});
   return cast<IntrinsicInst>(
       IRB.CreateCall(Func, {PtrOp, Align, Mask, Passthru}, Name));

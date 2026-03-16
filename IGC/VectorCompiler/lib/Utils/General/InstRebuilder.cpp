@@ -148,7 +148,7 @@ public:
     auto *RetTy =
         getIntrinsicRetTypeBasedOnArgs(IID, ArgTys, OrigIntrinsic.getContext());
     auto OverloadedTys = getIntrinsicOverloadedTypes(IID, RetTy, ArgTys);
-    auto *Decl = Intrinsic::getDeclaration(OrigIntrinsic.getModule(), IID,
+    auto *Decl =(OrigIntrinsic.getModule(), IID,
                                            OverloadedTys);
     return cast<IntrinsicInst>(CallInst::Create(Decl, NewOperands));
   }

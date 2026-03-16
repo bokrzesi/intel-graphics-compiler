@@ -1043,7 +1043,7 @@ bool CustomUnsafeOptPass::visitBinaryOperatorNegateMultiply(BinaryOperator &I) {
               fsubInstr->setDebugLoc(DL);
               auto *Val = static_cast<Value *>(fmulInst);
               SmallVector<DbgValueInst *, 1> DbgValues;
-              llvm::findDbgValues(DbgValues, Val);
+              //llvm::findDbgValues(DbgValues, Val);
               for (auto DV : DbgValues) {
                 DIExpression *OldExpr = DV->getExpression();
                 DIExpression *NewExpr =

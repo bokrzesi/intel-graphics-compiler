@@ -8,8 +8,8 @@ SPDX-License-Identifier: MIT
 
 #include "AdaptorCommon/ImplicitArgs.hpp"
 #include "Compiler/LegalizationPass.hpp"
-#include "Compiler/CodeGenPublic.h"
 #include "Compiler/CISACodeGen/helper.h"
+#include "Compiler/CodeGenPublic.h"
 #include "Compiler/IGCPassSupport.h"
 #include "Compiler/MetaDataApi/MetaDataApi.h"
 
@@ -1213,7 +1213,7 @@ void Legalization::visitStoreInst(StoreInst &I) {
 
     PointerType *ptrTy = cast<PointerType>(I.getPointerOperand()->getType());
     unsigned addressSpace = ptrTy->getAddressSpace();
-    PointerType *I8PtrTy = m_builder->getIntPtrTy(addressSpace);
+    auto I8PtrTy = m_builder->getIntPtrTy(*m_DL, addressSpace);
     Value *I8PtrOp = m_builder->CreateBitCast(I.getPointerOperand(), I8PtrTy);
 
     IGC::cloneStore(&I, newVal, I8PtrOp);
@@ -1276,7 +1276,7 @@ void Legalization::visitLoadInst(LoadInst &I) {
     m_builder->SetInsertPoint(&I);
     PointerType *ptrTy = cast<PointerType>(I.getPointerOperand()->getType());
     unsigned addressSpace = ptrTy->getAddressSpace();
-    PointerType *I8PtrTy = m_builder->getIntPtrTy(addressSpace);
+    auto I8PtrTy = m_builder->getIntPtrTy(*m_DL, addressSpace);
     Value *I8PtrOp = m_builder->CreateBitCast(I.getPointerOperand(), I8PtrTy);
 
     LoadInst *pNewLoadInst = IGC::cloneLoad(&I, m_builder->getInt8Ty(), I8PtrOp);

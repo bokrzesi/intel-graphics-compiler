@@ -165,7 +165,7 @@ MemCpyInst *ReplaceUnsupportedIntrinsics::MemMoveToMemCpy(MemMoveInst *MM) {
 
   Type *Tys[] = {Dst->getType(), Src->getType(), Size->getType()};
   auto *M = MM->getParent()->getParent()->getParent();
-  auto TheFn = Intrinsic::getDeclaration(M, Intrinsic::memcpy, Tys);
+  auto TheFn =(M, Intrinsic::memcpy, Tys);
 
   return cast<MemCpyInst>(MemCpyInst::Create(TheFn, args));
 }

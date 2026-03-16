@@ -589,7 +589,7 @@ void WAFMinFMax::visitCallInst(CallInst &I) {
           m_builder->SetInsertPoint(&I);
 
           IGCLLVM::Intrinsic IID = Intrinsic::minnum;
-          Function *IFunc = Intrinsic::getDeclaration(I.getParent()->getParent()->getParent(), IID, I.getType());
+          Function *IFunc = Intrinsic::getOrInsertDeclaration(I.getParent()->getParent()->getParent(), IID, I.getType());
           Value *QNaN = getQNaN(I.getType());
 
           Value *src0 = I.getOperand(0);

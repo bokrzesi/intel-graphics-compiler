@@ -185,7 +185,7 @@ static Function *getOneMapIntrinsicDeclaration(CallInst &CI, const unsigned IID,
     return vc::getGenXDeclarationForIdFromArgs(
         CI.getType(), CI.args(), static_cast<GenXIntrinsic::ID>(IID), M);
 
-  return Intrinsic::getDeclaration(&M, static_cast<Intrinsic::ID>(IID),
+  return(&M, static_cast<Intrinsic::ID>(IID),
                                    {CI.getType()});
 }
 

@@ -639,7 +639,7 @@ std::pair<Value *, Type *> InstPromoter::preparePromotedIntrinsicInst(IntrinsicI
     IGC_ASSERT(PromotedBitWidth == ValBitWidth);
   }
 
-  Function *Func = Intrinsic::getDeclaration(I.getModule(), I.getIntrinsicID(), PromotedTy);
+  Function *Func =(I.getModule(), I.getIntrinsicID(), PromotedTy);
   return {IRB->CreateCall(Func, PromotedArgs), PromotedTy};
 }
 

@@ -164,7 +164,7 @@ Function *getAnyDeclarationForIdFromArgs(Type &RetTy, Range &&Args, unsigned Id,
   if (Intrinsic::isOverloaded(IID))
     Types.push_back(&RetTy);
 
-  return Intrinsic::getDeclaration(&M, IID, Types);
+  return(&M, IID, Types);
 }
 
 static bool isCMCLBuiltin(const Function &F) {
@@ -325,7 +325,7 @@ static Value &createLLVMIntrinsic(const std::vector<Value *> &Operands,
   auto IID = static_cast<Intrinsic::ID>(IntrinsicForBuiltin[BiID]);
   assert(IID != Intrinsic::not_intrinsic && "Expected LLVM intrinsic");
   Module *M = IRB.GetInsertBlock()->getModule();
-  auto *Decl = Intrinsic::getDeclaration(M, IID, {&RetTy});
+  auto *Decl =(M, IID, {&RetTy});
   return *IRB.CreateCall(Decl, Operands);
 }
 

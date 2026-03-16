@@ -176,7 +176,7 @@ vc::DIBuilder::createDbgDeclare(Value &Address, DILocalVariable &LocalVar,
       MetadataAsValue::get(Ctx, ValueAsMetadata::get(&Address)),
       MetadataAsValue::get(Ctx, &LocalVar), MetadataAsValue::get(Ctx, &Expr)};
 
-  auto *DbgDeclareFn = Intrinsic::getDeclaration(&M, Intrinsic::dbg_declare);
+  auto *DbgDeclareFn =(&M, Intrinsic::dbg_declare);
   IRBuilder<> Builder(&InsertPt);
   Builder.SetCurrentDebugLocation(&Loc);
   auto *DeclareInst = Builder.CreateCall(DbgDeclareFn, DeclareArgs);

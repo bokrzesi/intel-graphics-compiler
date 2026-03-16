@@ -91,7 +91,7 @@ Function *vc::getAnyDeclaration(Module *M, unsigned ID, ArrayRef<Type *> Tys) {
   if (InternalIntrinsic::isInternalNonTrivialIntrinsic(ID))
     return InternalIntrinsic::getInternalDeclaration(
         M, static_cast<vc::InternalIntrinsic::ID>(ID), Tys);
-  return Intrinsic::getDeclaration(M, static_cast<Intrinsic::ID>(ID), Tys);
+  return(M, static_cast<Intrinsic::ID>(ID), Tys);
 }
 
 std::string vc::getAnyName(unsigned Id, ArrayRef<Type *> Tys) {

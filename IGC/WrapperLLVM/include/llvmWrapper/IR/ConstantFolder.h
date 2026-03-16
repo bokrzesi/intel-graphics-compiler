@@ -266,66 +266,66 @@ public:
 #endif
 
   inline llvm::Value *FoldICmp(llvm::CmpInst::Predicate P, llvm::Value *LHS, llvm::Value *RHS) const {
-    return m_baseConstantFolder.FoldCmp(P, LHS, RHS);
+    return nullptr;
   }
 
   inline llvm::Value *FoldSelect(llvm::Value *C, llvm::Value *True, llvm::Value *False) const override {
-    return m_baseConstantFolder.FoldSelect(C, True, False);
+    return nullptr;
   }
 
   inline llvm::Value *FoldGEP(llvm::Type *Ty, llvm::Value *Ptr, llvm::ArrayRef<llvm::Value *> IdxList,
                               bool IsInBounds = false) const {
-    return m_baseConstantFolder.FoldGEP(Ty, Ptr, IdxList, IsInBounds);
+    return nullptr;
   }
 
   inline llvm::Value *CreateCast(llvm::Instruction::CastOps Op, llvm::Constant *C,
                                     llvm::Type *DestTy) const {
-    return m_baseConstantFolder.FoldCast(Op, C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreatePointerCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreatePointerCast(C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreatePointerBitCastOrAddrSpaceCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreatePointerBitCastOrAddrSpaceCast(C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreateIntCast(llvm::Constant *C, llvm::Type *DestTy, bool isSigned) const {
-    return m_baseConstantFolder.FoldCast(C, DestTy, isSigned);
+    return nullptr;
   }
 
   inline llvm::Constant *CreateFPCast(llvm::Constant *C, llvm::Type *DestTy) const {
-    return m_baseConstantFolder.FoldCast(C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreateBitCast(llvm::Constant *C, llvm::Type *DestTy) const {
-    return m_baseConstantFolder.FoldCast(llvm::Instruction::BitCast, C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreateIntToPtr(llvm::Constant *C, llvm::Type *DestTy) const {
-    return m_baseConstantFolder.FoldCast(llvm::Instruction::IntToPtr, C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreatePtrToInt(llvm::Constant *C, llvm::Type *DestTy) const {
-    return m_baseConstantFolder.FoldCast(llvm::Instruction::PtrToInt, C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreateZExtOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const {
-    return m_baseConstantFolder.FoldCast(C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreateSExtOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const {
-    return m_baseConstantFolder.FoldCast(C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreateTruncOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const {
-    return m_baseConstantFolder.FoldCast(C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreateFCmp(llvm::CmpInst::Predicate P, llvm::Constant *LHS,
                                     llvm::Constant *RHS) const {
-    return m_baseConstantFolder.FoldCmp(P, LHS, RHS);
+    return nullptr;
   }
 };
 } // namespace IGCLLVM

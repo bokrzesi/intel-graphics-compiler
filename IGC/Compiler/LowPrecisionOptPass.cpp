@@ -322,7 +322,7 @@ void LowPrecisionOpt::visitIntrinsicInst(llvm::IntrinsicInst &I) {
 
   if (!func_llvm_floor_f32)
     func_llvm_floor_f32 =
-        llvm::Intrinsic::getDeclaration(m_currFunction->getParent(), Intrinsic::floor, m_builder->getFloatTy());
+        llvm::Intrinsic::getOrInsertDeclaration(m_currFunction->getParent(), Intrinsic::floor, m_builder->getFloatTy());
 
   auto floor32 = m_builder->CreateCall(func_llvm_floor_f32, src);
 #if VALUE_NAME_ENABLE

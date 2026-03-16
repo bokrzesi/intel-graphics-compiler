@@ -28,7 +28,7 @@ SPDX-License-Identifier: MIT
 #include "llvm/IR/Value.h"
 #include "llvm/Pass.h"
 #include "llvm/Passes/PassBuilder.h"
-#include "llvm/Transforms/Vectorize.h"
+#include "llvm/Transforms/Vectorize/LoadStoreVectorizer.h"
 
 #include "common/LLVMWarningsPop.hpp"
 

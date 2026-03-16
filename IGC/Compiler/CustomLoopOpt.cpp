@@ -348,7 +348,7 @@ void CustomLoopVersioning::rewriteLoopSeg2(Loop *loop, Value *interval_y, Value 
   v->setFast(true);
   fcmp->setOperand(1, v);
 
-  Instruction *i0 = body->getFirstNonPHIOrDbg();
+  auto i0 = body->getFirstNonPHIOrDbg();
   Instruction *i1 = i0->getNextNode();
 
   IntrinsicInst *imax = cast<IntrinsicInst>(i0);
@@ -390,7 +390,7 @@ void CustomLoopVersioning::rewriteLoopSeg2(Loop *loop, Value *interval_y, Value 
 //     float val0 = t;
 //     float val1 = loop_range_y;
 void CustomLoopVersioning::rewriteLoopSeg3(BasicBlock *bb, Value *interval_y) {
-  Instruction *i0 = bb->getFirstNonPHIOrDbg();
+  auto i0 = bb->getFirstNonPHIOrDbg();
   Instruction *i1 = i0->getNextNode();
 
   IntrinsicInst *imax = cast<IntrinsicInst>(i0);

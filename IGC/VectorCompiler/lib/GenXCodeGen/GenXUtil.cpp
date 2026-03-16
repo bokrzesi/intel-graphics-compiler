@@ -129,7 +129,7 @@ CallInst *genx::createAddAddr(Value *Lhs, Value *Rhs, const Twine &Name,
 CallInst *genx::createUnifiedRet(Type *Ty, const Twine &Name, Module *M) {
   IGC_ASSERT_MESSAGE(Ty, "wrong argument");
   IGC_ASSERT_MESSAGE(M, "wrong argument");
-  auto G = Intrinsic::getDeclaration(M, Intrinsic::ssa_copy, Ty);
+  auto G =(M, Intrinsic::ssa_copy, Ty);
   return CallInst::Create(G, UndefValue::get(Ty), Name + ".unifiedret",
                           static_cast<Instruction *>(nullptr));
 }

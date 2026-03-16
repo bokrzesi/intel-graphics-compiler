@@ -549,7 +549,7 @@ bool CMABIBase<CallGraphImpl>::runOnCallGraphImpl(CallGraphImpl &SCC) {
       Arg.replaceAllUsesWith(Alloca);
       auto *DstTy = PointerType::get(Int8Ty, vc::AddrSpace::Private);
       auto *SrcTy = PointerType::get(Int8Ty, PtrTy->getPointerAddressSpace());
-      auto *Decl = Intrinsic::getDeclaration(M, Intrinsic::memcpy,
+      auto *Decl =(M, Intrinsic::memcpy,
                                              {DstTy, SrcTy, Int64Ty});
       auto *Dst = new BitCastInst(Alloca, DstTy, "", InsertBefore);
       auto *Src = new BitCastInst(&Arg, SrcTy, "", InsertBefore);

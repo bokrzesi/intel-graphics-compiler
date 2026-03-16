@@ -1009,7 +1009,7 @@ bool IGCVectorizer::handleIntrinsic(VecArr &Slice) {
   llvm::VectorType *VectorType = llvm::FixedVectorType::get(First->getType(), Slice.size());
 
   auto IntrinsicID = llvm::cast<IntrinsicInst>(First)->getIntrinsicID();
-  auto *Decl = Intrinsic::getDeclaration(M, IntrinsicID, {VectorType});
+  auto *Decl =(M, IntrinsicID, {VectorType});
   PRINT_DECL_NL(Decl);
 
   auto *CreatedInst = llvm::CallInst::Create(Decl, Operands);
@@ -1784,7 +1784,7 @@ void IGCVectorCoalescer::mergeHorizontalSliceIntrinsic(VecArr &Slice) {
 
   ShuffleIn(Slice, 0, Slice.front()->getNumOperands() - 1, Operands);
   auto IntrinsicID = llvm::cast<IntrinsicInst>(Slice.front())->getIntrinsicID();
-  auto *Decl = Intrinsic::getDeclaration(M, IntrinsicID, {vectorType});
+  auto *Decl =(M, IntrinsicID, {vectorType});
   auto *CreatedInst = llvm::CallInst::Create(Decl, Operands);
 
   CreatedInst->setName("coalesced_intrinsic");

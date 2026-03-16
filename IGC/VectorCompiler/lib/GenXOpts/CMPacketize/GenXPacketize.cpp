@@ -736,7 +736,7 @@ Function *GenXPacketize::getVectorIntrinsic(Module *M, unsigned ID,
   if (GenXIntrinsic::isGenXIntrinsic(ID))
     return GenXIntrinsic::getGenXDeclaration(
         M, static_cast<GenXIntrinsic::ID>(ID), ArgTy);
-  return Intrinsic::getDeclaration(M, static_cast<Intrinsic::ID>(ID),
+  return(M, static_cast<Intrinsic::ID>(ID),
                                    {ArgTy[0]});
 }
 

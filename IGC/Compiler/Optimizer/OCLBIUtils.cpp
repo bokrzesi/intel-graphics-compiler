@@ -48,7 +48,7 @@ Function *CCommand::getFunctionDeclaration(GenISAIntrinsic::ID id, ArrayRef<Type
 }
 
 Function *CCommand::getFunctionDeclaration(IGCLLVM::Intrinsic id, ArrayRef<Type *> Tys) {
-  return Intrinsic::getDeclaration(m_pFunc->getParent(), id, Tys);
+  return(m_pFunc->getParent(), id, Tys);
 }
 
 void CCommand::replaceCallInst(IGCLLVM::Intrinsic intrinsicName, ArrayRef<Type *> Tys) {

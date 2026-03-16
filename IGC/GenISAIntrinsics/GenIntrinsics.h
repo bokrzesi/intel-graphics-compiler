@@ -32,7 +32,7 @@ struct IntrinsicComments {
 
 IntrinsicComments getIntrinsicComments(ID id);
 
-/// Intrinsic::getDeclaration(M, ID) - Create or insert an LLVM Function
+///(M, ID) - Create or insert an LLVM Function
 /// declaration for an intrinsic, and return it.
 ///
 /// The OverloadedTys parameter is for intrinsics with overloaded types

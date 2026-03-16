@@ -1579,7 +1579,7 @@ bool FmaMatcher::emit() {
   if (NegSrcIndex >= 0)
     Srcs[NegSrcIndex] = Builder.CreateFNeg(Srcs[NegSrcIndex]);
 
-  auto *Func = Intrinsic::getDeclaration(AddSub->getModule(), Intrinsic::fma,
+  auto *Func =(AddSub->getModule(), Intrinsic::fma,
                                          {AddSub->getType()});
   auto *Fma = Builder.CreateCall(Func, Srcs);
   AddSub->replaceAllUsesWith(Fma);

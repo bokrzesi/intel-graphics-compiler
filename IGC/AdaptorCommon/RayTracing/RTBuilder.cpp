@@ -1835,12 +1835,12 @@ GenIntrinsicInst *RTBuilder::createDummyInstID(Value *pSrcVal) {
 }
 
 CallInst *RTBuilder::ctlz(Value *V) {
-  auto *Ctlz = Intrinsic::getDeclaration(GetInsertBlock()->getModule(), Intrinsic::ctlz, V->getType());
+  auto *Ctlz = Intrinsic::getOrInsertDeclaration(GetInsertBlock()->getModule(), Intrinsic::ctlz, V->getType());
   return CreateCall2(Ctlz, V, getFalse(), VALUE_NAME("lzd"));
 }
 
 CallInst *RTBuilder::cttz(Value *V) {
-  auto *Cttz = Intrinsic::getDeclaration(GetInsertBlock()->getModule(), Intrinsic::cttz, V->getType());
+  auto *Cttz = Intrinsic::getOrInsertDeclaration(GetInsertBlock()->getModule(), Intrinsic::cttz, V->getType());
   return CreateCall2(Cttz, V, getFalse(), VALUE_NAME("cttz"));
 }
 

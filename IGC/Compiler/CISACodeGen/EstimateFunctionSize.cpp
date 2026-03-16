@@ -678,7 +678,7 @@ void EstimateFunctionSize::runStaticAnalysis() {
       continue;
     auto &BFI = getAnalysis<BlockFrequencyInfoWrapperPass>(F).getBFI();
     FunctionNode *Node = get<FunctionNode>(&F);
-    Node->setEntryFrequency(BFI.getEntryFreq(), 0);
+    Node->setEntryFrequency(BFI.getEntryFreq().getFrequency(), 0);
 
     for (auto &B : F)
       Node->blockFreqs[&B] = Scaled64(BFI.getBlockFreq(&B).getFrequency(), 0);
