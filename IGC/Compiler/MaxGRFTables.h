@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 
 #include "../common/Types.hpp"
 #include "CISACodeGen/Platform.hpp"
-
+#include "llvm/ADT/ArrayRef.h"
 #include <stdint.h>
 #include <vector>
 

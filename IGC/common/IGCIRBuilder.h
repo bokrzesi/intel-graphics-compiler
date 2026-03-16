@@ -18,6 +18,7 @@ SPDX-License-Identifier: MIT
 #include "llvm/IR/Function.h"
 #include <llvm/Analysis/TargetFolder.h>
 #include "llvm/IR/InstrTypes.h"
+#include "llvm/IR/Module.h"
 #include "common/LLVMWarningsPop.hpp"
 #include "llvmWrapper/IR/IRBuilder.h"
 #include "llvmWrapper/IR/Instructions.h"
