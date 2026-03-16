@@ -244,7 +244,7 @@ void BiFManagerHandler::preapareBiFSections(llvm::Module &pMainModule, TFunction
           if (T == "") {
             bifGenericSection.setTargetTriple(builtinSizeModule()->getTargetTriple());
           } else {
-            bifGenericSection.setTargetTriple(T);
+            bifGenericSection.setTargetTriple(llvm::Triple(T));
           }
         }
         if (DL == nullptr) {

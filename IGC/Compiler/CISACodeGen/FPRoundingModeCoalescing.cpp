@@ -211,7 +211,7 @@ bool FPRoundingModeCoalescingImpl::setsRoundingMode(Instruction &ToMove) {
 bool FPRoundingModeCoalescingImpl::checkMoveThreshold(Instruction &ToMove, Instruction *InsertPoint) {
   unsigned Dist = 1;
   for (Instruction *I = ToMove.getNextNonDebugInstruction(); I != InsertPoint;
-       I = I->getNextNonDebugInstruction(), ++Dist) {
+       I = I->getNextNode(), ++Dist) {
     if (Dist >= IGC_GET_FLAG_VALUE(FPRoundingModeCoalescingMaxDistance))
       return false;
   }

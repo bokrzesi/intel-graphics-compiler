@@ -49,7 +49,6 @@ See LICENSE.TXT for details.
   PassInfo *PI =                                                                                                       \
       new PassInfo(name, arg, &passName ::ID, PassInfo::NormalCtor_t(callDefaultCtor<passName>), cfg, analysis);       \
   Registry.registerPass(*PI, true);                                                                                    \
-  return PI;                                                                                                           \
   }                                                                                                                    \
   static llvm::once_flag Initialize##passName##PassFlag;                                                               \
   void initialize##passName##Pass(PassRegistry &Registry) {                                                            \

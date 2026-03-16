@@ -580,7 +580,7 @@ cl::opt<ActionType> Action(
                           "Generate IGCCompute SPIR-V extension support query header (structures + query functions)")));
 } // namespace
 
-static bool OptionsAndDocsTblgenMain(raw_ostream &OS, RecordKeeper &Records) {
+static bool OptionsAndDocsTblgenMain(raw_ostream &OS, const RecordKeeper &Records) {
   switch (Action) {
   case EmitSPIRVDocs:
     emitSPIRVDocs(Records, OS);

@@ -69,7 +69,7 @@ public:
   VISAELFObjectWriter(uint8_t osABI, uint16_t eMachine)
       : MCELFObjectTargetWriter(true /* is64Bit */, osABI, eMachine, true /* hasRelocationAddend */) {}
 
-  unsigned getRelocType(MCContext &Ctx, const MCValue &Target, const MCFixup &Fixup, bool IsPCRel) const {
+ unsigned getRelocType(const MCFixup &Fixup, const MCValue &Target, bool IsPCRel) const override {
     IGC_ASSERT_MESSAGE(IsPCRel == false, "expecting non-PC relative reloc type");
     unsigned type = ELF::R_X86_64_NONE;
 
@@ -77,8 +77,10 @@ public:
     default:
       IGC_ASSERT_EXIT_MESSAGE(0, "invalid fixup kind!");
     case FK_Data_8:
-      IGC_ASSERT_MESSAGE(Target.isAbsolute() || Target.getSymA()->getKind() == MCSymbolRefExpr::VK_None,
-                         "expecting absolute target reloc");
+      #if LLVM_VERSION_MAJOR <= 17
+        IGC_ASSERT_MESSAGE(Target.isAbsolute() || Target.getSymA()->getKind() == MCSymbolRefExpr::VK_None,
+                          "expecting absolute target reloc");
+      #endif
       type = ELF::R_X86_64_64;
       break;
     case FK_Data_4:
@@ -100,9 +102,9 @@ class VISAAsmBackend : public MCAsmBackend {
   StringRef m_targetTriple;
 
 public:
-  VISAAsmBackend(StringRef targetTriple) : MCAsmBackend(support::endianness::little), m_targetTriple(targetTriple) {}
+  VISAAsmBackend(StringRef targetTriple) : MCAsmBackend(llvm::endianness::little), m_targetTriple(targetTriple) {}
 
-  unsigned getNumFixupKinds() const override { return 0; }
+  unsigned getNumFixupKinds() const { return 0; }
 
   static unsigned getFixupKindLog2Size(unsigned Kind) {
     switch (Kind) {
@@ -119,11 +121,11 @@ public:
     }
   }
 
-  void applyFixup(const MCAssembler &Asm, const MCFixup &fixup, const MCValue &Target, MutableArrayRef<char> Data,
-                  uint64_t value, bool IsResolved, const MCSubtargetInfo *STI) const override {
+  void applyFixup(const MCFragment &F, const MCFixup &fixup, const MCValue &Target, uint8_t *Data,
+                  uint64_t value, bool IsResolved) override {
     unsigned size = 1 << getFixupKindLog2Size(fixup.getKind());
 
-    IGC_ASSERT_MESSAGE(fixup.getOffset() + size <= Data.size(), "Invalid fixup offset!");
+    IGC_ASSERT_MESSAGE(fixup.getOffset() + size <= F.getSize(), "Invalid fixup size!");
 
     // Check that uppper bits are either all zeros or all ones.
     // Specifically ignore overflow/underflow as long as the leakage is
@@ -136,14 +138,13 @@ public:
     }
   }
 
-  bool mayNeedRelaxation(const MCInst &inst, const MCSubtargetInfo &STI) const override {
+  bool mayNeedRelaxation(const MCInst &inst, const MCSubtargetInfo &STI) const {
     // TODO: implement this
     IGC_ASSERT_EXIT_MESSAGE(0, "Unimplemented");
     return false;
   }
 
-  bool fixupNeedsRelaxation(const MCFixup &fixup, uint64_t value, const MCRelaxableFragment *pDF,
-                            const MCAsmLayout &layout) const override {
+  bool fixupNeedsRelaxation(const MCFixup &fixup, uint64_t value, const MCFragment *pDF) const {
     // TODO: implement this
     IGC_ASSERT_EXIT_MESSAGE(0, "Unimplemented");
     return false;
@@ -166,7 +167,7 @@ public:
 class VISAMCCodeEmitter : public MCCodeEmitter {
   /// EncodeInstruction - Encode the given \p inst to bytes on the output
   /// stream \p OS.
-  virtual void encodeInstruction(const MCInst &inst, raw_ostream &os, SmallVectorImpl<MCFixup> &fixups,
+  virtual void encodeInstruction(const MCInst &inst, SmallVectorImpl<char> &os, SmallVectorImpl<MCFixup> &fixups,
                                  const MCSubtargetInfo &m) const {
     // TODO: implement this
     IGC_ASSERT_EXIT_MESSAGE(0, "Unimplemented");
@@ -211,13 +212,13 @@ StreamEmitter::StreamEmitter(raw_pwrite_stream &outStream, const std::string &da
   std::unique_ptr<MCELFObjectTargetWriter> pTargetObjectWriter =
       IGCLLVM::make_unique<VISAELFObjectWriter>(osABI, eMachine);
   std::unique_ptr<MCObjectWriter> pObjectWriter =
-      createELFObjectWriter(std::move(pTargetObjectWriter), outStream, true);
+    std::make_unique<ELFObjectWriter>(std::move(pTargetObjectWriter), outStream, true);
   std::unique_ptr<MCCodeEmitter> pCodeEmitter = IGCLLVM::make_unique<VISAMCCodeEmitter>();
 
   bool isRelaxAll = false;
   bool isNoExecStack = false;
   m_pMCStreamer = createELFStreamer(*m_pContext, std::move(pAsmBackend), std::move(pObjectWriter),
-                                    std::move(pCodeEmitter), isRelaxAll);
+                                    std::move(pCodeEmitter));
 
   IGCLLVM::initSections(m_pMCStreamer, isNoExecStack, m_pContext);
 }

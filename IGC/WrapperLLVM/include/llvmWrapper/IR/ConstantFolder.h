@@ -256,7 +256,7 @@ public:
   inline llvm::Constant *CreateBinOp(llvm::Instruction::BinaryOps Opc, llvm::Constant *LHS, llvm::Constant *RHS) const
 #if (LLVM_VERSION_MAJOR < 15)
       override {
-    return m_baseConstantFolder.CreateBinOp(Opc, LHS, RHS);
+    return nullptr;
   }
 #else
   {
@@ -265,67 +265,67 @@ public:
   }
 #endif
 
-  inline llvm::Value *FoldICmp(llvm::CmpInst::Predicate P, llvm::Value *LHS, llvm::Value *RHS) const override {
-    return m_baseConstantFolder.FoldICmp(P, LHS, RHS);
+  inline llvm::Value *FoldICmp(llvm::CmpInst::Predicate P, llvm::Value *LHS, llvm::Value *RHS) const {
+    return nullptr;
   }
 
   inline llvm::Value *FoldSelect(llvm::Value *C, llvm::Value *True, llvm::Value *False) const override {
-    return m_baseConstantFolder.FoldSelect(C, True, False);
+    return nullptr;
   }
 
   inline llvm::Value *FoldGEP(llvm::Type *Ty, llvm::Value *Ptr, llvm::ArrayRef<llvm::Value *> IdxList,
-                              bool IsInBounds = false) const override {
-    return m_baseConstantFolder.FoldGEP(Ty, Ptr, IdxList, IsInBounds);
+                              bool IsInBounds = false) const {
+    return nullptr;
   }
 
   inline llvm::Constant *CreateCast(llvm::Instruction::CastOps Op, llvm::Constant *C,
-                                    llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreateCast(Op, C, DestTy);
+                                    llvm::Type *DestTy) const {
+    return nullptr;
   }
 
   inline llvm::Constant *CreatePointerCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreatePointerCast(C, DestTy);
+    return nullptr;
   }
 
   inline llvm::Constant *CreatePointerBitCastOrAddrSpaceCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreatePointerBitCastOrAddrSpaceCast(C, DestTy);
+    return nullptr;
   }
 
-  inline llvm::Constant *CreateIntCast(llvm::Constant *C, llvm::Type *DestTy, bool isSigned) const override {
-    return m_baseConstantFolder.CreateIntCast(C, DestTy, isSigned);
+  inline llvm::Constant *CreateIntCast(llvm::Constant *C, llvm::Type *DestTy, bool isSigned) const {
+    return nullptr;
   }
 
-  inline llvm::Constant *CreateFPCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreateFPCast(C, DestTy);
+  inline llvm::Constant *CreateFPCast(llvm::Constant *C, llvm::Type *DestTy) const {
+    return nullptr;
   }
 
-  inline llvm::Constant *CreateBitCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreateCast(llvm::Instruction::BitCast, C, DestTy);
+  inline llvm::Constant *CreateBitCast(llvm::Constant *C, llvm::Type *DestTy) const {
+    return nullptr;
   }
 
-  inline llvm::Constant *CreateIntToPtr(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreateCast(llvm::Instruction::IntToPtr, C, DestTy);
+  inline llvm::Constant *CreateIntToPtr(llvm::Constant *C, llvm::Type *DestTy) const {
+    return nullptr;
   }
 
-  inline llvm::Constant *CreatePtrToInt(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreateCast(llvm::Instruction::PtrToInt, C, DestTy);
+  inline llvm::Constant *CreatePtrToInt(llvm::Constant *C, llvm::Type *DestTy) const {
+    return nullptr;
   }
 
-  inline llvm::Constant *CreateZExtOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreateZExtOrBitCast(C, DestTy);
+  inline llvm::Constant *CreateZExtOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const {
+    return nullptr;
   }
 
-  inline llvm::Constant *CreateSExtOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreateSExtOrBitCast(C, DestTy);
+  inline llvm::Constant *CreateSExtOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const {
+    return nullptr;
   }
 
-  inline llvm::Constant *CreateTruncOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return m_baseConstantFolder.CreateTruncOrBitCast(C, DestTy);
+  inline llvm::Constant *CreateTruncOrBitCast(llvm::Constant *C, llvm::Type *DestTy) const {
+    return nullptr;
   }
 
   inline llvm::Constant *CreateFCmp(llvm::CmpInst::Predicate P, llvm::Constant *LHS,
-                                    llvm::Constant *RHS) const override {
-    return m_baseConstantFolder.CreateFCmp(P, LHS, RHS);
+                                    llvm::Constant *RHS) const {
+    return nullptr;
   }
 };
 } // namespace IGCLLVM

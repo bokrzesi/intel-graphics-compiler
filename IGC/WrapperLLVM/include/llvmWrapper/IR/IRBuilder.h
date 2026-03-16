@@ -199,6 +199,7 @@ public:
 
   using llvm::IRBuilder<T, InserterTy>::CreateGEP;
 
+#if LLVM_VERSION_MAJOR < 17
   // This wrapper function is deprecated because it uses getNonOpaquePointerElementType() function
   // and should no longer be used in LLVM 14+ compatible code.
   llvm::Value *CreatePtrDiff(llvm::Value *LHS, llvm::Value *RHS, const llvm::Twine &Name = "") {
@@ -206,6 +207,7 @@ public:
     llvm::Type *Ty = IGCLLVM::getNonOpaquePtrEltTy(PtrTy);
     return llvm::IRBuilder<T, InserterTy>::CreatePtrDiff(Ty, LHS, RHS, Name);
   }
+#endif
 };
 
 } // namespace IGCLLVM

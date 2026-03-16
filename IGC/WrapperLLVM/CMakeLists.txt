@@ -112,8 +112,6 @@ set(IGC_WrapperLLVM_HDR
     "${CMAKE_CURRENT_SOURCE_DIR}/include/llvmWrapper/Transforms/Vectorize/LoopVectorize.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/llvmWrapper/Transforms/Vectorize/SLPVectorizer.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/llvmWrapper/Transforms/Vectorize/VectorCombine.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/llvmWrapper/Transforms/IPO/InlineHelper.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/llvmWrapper/Transforms/IPO/InlineSimple.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/llvmWrapper/Transforms/IPO/LegacyPassManagerBuilder.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/llvmWrapper/Transforms/Utils/StripNonLineTableDebugInfo.h"
 
@@ -159,8 +157,6 @@ set(IGC_WrapperLLVM_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/llvmWrapper/Transforms/InstCombine/InstructionCombining.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/llvmWrapper/Transforms/Utils/LibCallsShrinkWrap.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/llvmWrapper/Transforms/Utils/InjectTLIMappings.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/llvmWrapper/Transforms/IPO/InlineHelper.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/llvmWrapper/Transforms/IPO/InlineSimple.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/llvmWrapper/Transforms/IPO/LegacyPassManagerBuilder.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/llvmWrapper/Transforms/Utils/StripNonLineTableDebugInfo.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/llvmWrapper/Transforms/Utils/InjectTLIMappings.cpp"

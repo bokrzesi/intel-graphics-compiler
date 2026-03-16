@@ -1273,8 +1273,7 @@ void DwarfDebug::endSections() {
     if (SCU.Sym->isInSection()) {
       // Make a note of this symbol and it's section.
       const MCSection *Section = &SCU.Sym->getSection();
-      if (!Section->getKind().isMetadata())
-        SectionMap[Section].push_back(SCU);
+      SectionMap[Section].push_back(SCU);
     } else {
       // Some symbols (e.g. common/bss on mach-o) can have no section but still
       // appear in the output. This sucks as we rely on sections to build

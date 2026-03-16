@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
   }
 
 #if LLVM_VERSION_MAJOR < 17 || defined(IGC_LLVM_TRUNK_REVISION)
-  Context.setOpaquePointers(enableOpaquePointers);
+  //Context.setOpaquePointers(enableOpaquePointers);
 #endif
 #endif
 

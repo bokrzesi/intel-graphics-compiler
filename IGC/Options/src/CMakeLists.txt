@@ -8,5 +8,6 @@
 
 target_sources(IGCOptions
   PRIVATE
-  Options.cpp
+  API-Options.cpp
+  Internal-Options.cpp
   )
