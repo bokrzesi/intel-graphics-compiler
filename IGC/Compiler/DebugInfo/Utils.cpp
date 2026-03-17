@@ -90,7 +90,7 @@ llvm::Instruction *UpdateGlobalVarDebugInfo(llvm::GlobalVariable *pGlobalVar, ll
 
     if (isIndirect)
       return Builder.insertDeclare(pNewVal, llvm::cast<llvm::DILocalVariable>(Var), Builder.createExpression(),
-                                   locToUse, pEntryPoint);
+                                   locToUse, pEntryPoint).get<llvm::Instruction *>();
 
     return Builder.insertDbgValueIntrinsic(pNewVal, 0, llvm::cast<llvm::DILocalVariable>(Var),
                                            Builder.createExpression(), locToUse, pEntryPoint);

@@ -252,7 +252,7 @@ void CustomLoopVersioning::rewriteLoopSeg1(Loop *loop, Value *interval_x, Value 
 
   fcmp->setOperand(1, interval_x);
 
-  Instruction *i0 = body->getFirstNonPHIOrDbg();
+  auto *i0 = body->getFirstNonPHIOrDbg();
   Instruction *i1 = i0->getNextNonDebugInstruction();
 
   IntrinsicInst *imax = cast<IntrinsicInst>(i0);
