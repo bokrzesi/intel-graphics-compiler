@@ -9454,7 +9454,7 @@ bool EmitPass::validateInlineAsmConstraints(llvm::CallInst *inst, SmallVector<St
 void EmitPass::EmitInlineAsm(llvm::CallInst *inst) {
   std::stringstream &str = m_encoder->GetVISABuilder()->GetAsmTextStream();
   InlineAsm *IA = cast<InlineAsm>(IGCLLVM::getCalledValue(inst));
-  string asmStr = IA->getAsmString();
+  string asmStr = IA->getAsmString().str();
   smallvector<CVariable *, 8> opnds;
   SmallVector<StringRef, 8> constraints;
   DenseMap<CVariable *, Instruction *> DstOpndMap;
