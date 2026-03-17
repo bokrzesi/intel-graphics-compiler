@@ -51,7 +51,7 @@ void PreprocessSPVIR::createCallAndReplace(CallInst &oldCallInst, StringRef newF
   FunctionType *FT = FunctionType::get(oldCallInst.getType(), argTypes, false);
   auto *newFunction = cast<Function>(m_Module->getOrInsertFunction(newFuncName, FT, F->getAttributes()));
   newFunction->setCallingConv(F->getCallingConv());
-  CallInst *newCall = CallInst::Create(newFunction, args, "", &oldCallInst);
+  CallInst *newCall = CallInst::Create(newFunction, args, "", oldCallInst.getIterator());
   newCall->setCallingConv(oldCallInst.getCallingConv());
   newCall->setAttributes(oldCallInst.getAttributes());
   oldCallInst.replaceAllUsesWith(newCall);
@@ -118,11 +118,11 @@ void PreprocessSPVIR::processBuiltinsWithArrayArguments(llvm::Function &F) {
         }
 
         auto FBegin = CI->getFunction()->begin()->getFirstInsertionPt();
-        auto *Alloca = new AllocaInst(T, 0, "", &(*FBegin));
-        new StoreInst(arg, Alloca, false, CI);
+        auto *Alloca = new AllocaInst(T, 0, "", FBegin);
+        new StoreInst(arg, Alloca, false, CI->getIterator());
         auto *Zero = ConstantInt::getNullValue(Type::getInt32Ty(T->getContext()));
         Value *Index[] = {Zero, Zero};
-        auto *GEP = GetElementPtrInst::CreateInBounds(T, Alloca, Index, "", CI);
+        auto *GEP = GetElementPtrInst::CreateInBounds(T, Alloca, Index, "", CI->getIterator());
         newArgs.push_back(GEP);
       }
 

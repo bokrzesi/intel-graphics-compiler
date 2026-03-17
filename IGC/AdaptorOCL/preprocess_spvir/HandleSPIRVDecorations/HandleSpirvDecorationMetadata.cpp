@@ -370,7 +370,7 @@ void HandleSpirvDecorationMetadata::handleCacheControlINTELFor2DBlockIO(CallInst
   std::string newFuncName = "__internal_" + unmangledName.str() + "_cache_controls";
   auto newFunction = m_Module->getOrInsertFunction(newFuncName, FT);
 
-  auto newCall = CallInst::Create(newFunction, args, "", &I);
+  auto newCall = CallInst::Create(newFunction, args, "", I.getIterator());
   I.replaceAllUsesWith(newCall);
   I.eraseFromParent();
   m_changed = true;
@@ -437,7 +437,7 @@ void HandleSpirvDecorationMetadata::handleCacheControlINTELForPrefetch(llvm::Cal
   std::string newFuncName = "__lsc_prefetch_cache_controls";
   auto newFunction = m_Module->getOrInsertFunction(newFuncName, FT);
 
-  auto newCall = CallInst::Create(newFunction, args, "", &I);
+  auto newCall = CallInst::Create(newFunction, args, "", I.getIterator());
   I.replaceAllUsesWith(newCall);
   I.eraseFromParent();
   m_changed = true;
@@ -519,7 +519,7 @@ void HandleSpirvDecorationMetadata::handleCacheControlINTELFor1DBlockIO(CallInst
   std::string newFuncName = "__internal_" + funcName + "_" + typeName + "_cache_controls";
   auto newFunction = m_Module->getOrInsertFunction(newFuncName, funcTy);
 
-  auto newCall = CallInst::Create(newFunction, args, "", &I);
+  auto newCall = CallInst::Create(newFunction, args, "", I.getIterator());
   I.replaceAllUsesWith(newCall);
   I.eraseFromParent();
   m_changed = true;
@@ -595,7 +595,7 @@ void HandleSpirvDecorationMetadata::handleCacheControlINTELForOCL1DBlockPrefetch
   auto newFuncName = "__internal_SubgroupBlockPrefetchINTEL_" + typeName + "_cache_controls";
   auto newFunction = m_Module->getOrInsertFunction(newFuncName, funcTy);
 
-  auto newCall = CallInst::Create(newFunction, args, "", &I);
+  auto newCall = CallInst::Create(newFunction, args, "", I.getIterator());
   I.replaceAllUsesWith(newCall);
   I.eraseFromParent();
   m_changed = true;

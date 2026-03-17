@@ -325,9 +325,13 @@ Type *PromoteSubByte::getOrCreatePromotedType(Type *type) {
   } else if (auto pointerType = dyn_cast<PointerType>(type)) {
     newType = IGCLLVM::isPointerTy(pointerType)
                   ? pointerType
+#if LLVM_VERSION_MAJOR >= 18
+                  : PointerType::get(type->getContext(), pointerType->getAddressSpace());
+#else
                   : PointerType::get(getOrCreatePromotedType(
                                          IGCLLVM::getNonOpaquePtrEltTy(type)), // Legacy code: getNonOpaquePtrEltTy
                                      pointerType->getAddressSpace());
+#endif
   } else if (auto arrayType = dyn_cast<ArrayType>(type)) {
     newType = ArrayType::get(getOrCreatePromotedType(arrayType->getElementType()), arrayType->getNumElements());
   } else if (auto structType = dyn_cast<StructType>(type)) {
@@ -451,7 +455,7 @@ Value *PromoteSubByte::getOrCreatePromotedValue(Value *value) {
 
     if (isIntegerTy(value, 1)) {
       auto clone = instruction->clone();
-      clone->insertBefore(instruction);
+      clone->insertBefore(instruction->getIterator());
       instruction->replaceAllUsesWith(clone);
       newValue = convertI1ToI8(clone, instruction);
     }
@@ -572,7 +576,7 @@ Function *PromoteSubByte::promoteFunction(Function *function) {
         }
       }
 
-      auto cast = castTo(newArg, arg.getType(), newFunction->getEntryBlock().getFirstNonPHI());
+      auto cast = castTo(newArg, arg.getType(), &*newFunction->getEntryBlock().getFirstInsertionPt());
       for (auto &instruction : userInstructions) {
         instruction->replaceUsesOfWith(newArg, cast);
       }
@@ -646,8 +650,13 @@ Constant *PromoteSubByte::promoteConstant(Constant *constant) {
 
     auto newPointerElementType = getOrCreatePromotedType(
         IGCLLVM::getNonOpaquePtrEltTy(constantPointerNull->getType())); // Legacy code: getNonOpaquePtrEltTy
+  #if LLVM_VERSION_MAJOR >= 18
+    return ConstantPointerNull::get(PointerType::get(constant->getContext(),
+                             constantPointerNull->getType()->getAddressSpace()));
+  #else
     return ConstantPointerNull::get(
-        PointerType::get(newPointerElementType, constantPointerNull->getType()->getAddressSpace()));
+      PointerType::get(newPointerElementType, constantPointerNull->getType()->getAddressSpace()));
+  #endif
   } else if (auto constantVector = dyn_cast<ConstantVector>(constant)) {
     if (!typeNeedsPromotion(constantVector->getType())) {
       return constant;
@@ -704,8 +713,9 @@ AddrSpaceCastInst *PromoteSubByte::promoteAddrSpaceCast(AddrSpaceCastInst *addrS
     return addrSpaceCast;
   }
 
-  auto newAddrSpaceCast = new AddrSpaceCastInst(getOrCreatePromotedValue(addrSpaceCast->getOperand(0)),
-                                                getOrCreatePromotedType(addrSpaceCast->getDestTy()), "", addrSpaceCast);
+  auto newAddrSpaceCast =
+      new AddrSpaceCastInst(getOrCreatePromotedValue(addrSpaceCast->getOperand(0)),
+                            getOrCreatePromotedType(addrSpaceCast->getDestTy()), "", addrSpaceCast->getIterator());
   newAddrSpaceCast->setDebugLoc(addrSpaceCast->getDebugLoc());
   return newAddrSpaceCast;
 }
@@ -717,7 +727,7 @@ AllocaInst *PromoteSubByte::promoteAlloca(AllocaInst *alloca) {
 
   auto newAlloca =
       new AllocaInst(getOrCreatePromotedType(alloca->getAllocatedType()), alloca->getType()->getAddressSpace(),
-                     alloca->isArrayAllocation() ? alloca->getArraySize() : nullptr, "", alloca);
+                     alloca->isArrayAllocation() ? alloca->getArraySize() : nullptr, "", alloca->getIterator());
   newAlloca->setAlignment(IGCLLVM::getAlign(*alloca));
   newAlloca->setDebugLoc(alloca->getDebugLoc());
   return newAlloca;
@@ -734,7 +744,7 @@ Value *PromoteSubByte::promoteBitCast(BitCastInst *bitcast) {
   }
 
   auto newBitcast = new BitCastInst(getOrCreatePromotedValue(bitcast->getOperand(0)),
-                                    getOrCreatePromotedType(bitcast->getDestTy()), "", bitcast);
+                                    getOrCreatePromotedType(bitcast->getDestTy()), "", bitcast->getIterator());
   newBitcast->setDebugLoc(bitcast->getDebugLoc());
   return newBitcast;
 }
@@ -754,7 +764,7 @@ CallInst *PromoteSubByte::promoteIndirectCallOrInlineAsm(CallInst *call) {
   }
 
   auto newCall = CallInst::Create(llvm::cast<llvm::FunctionType>(getOrCreatePromotedType(functionType)),
-                                  getOrCreatePromotedValue(operand), newCallArguments, "", call);
+                                  getOrCreatePromotedValue(operand), newCallArguments, "", call->getIterator());
   newCall->setCallingConv(call->getCallingConv());
   setPromotedAttributes(newCall, call->getAttributes());
   newCall->setDebugLoc(call->getDebugLoc());
@@ -808,7 +818,8 @@ CallInst *PromoteSubByte::promoteCall(CallInst *call) {
     }
   }
 
-  auto newCall = CallInst::Create(newFunction->getFunctionType(), newFunction, newCallArguments, "", call);
+  auto newCall = CallInst::Create(newFunction->getFunctionType(), newFunction, newCallArguments, "",
+                                  call->getIterator());
   newCall->setCallingConv(call->getCallingConv());
   setPromotedAttributes(newCall, call->getAttributes());
   newCall->setDebugLoc(call->getDebugLoc());
@@ -826,7 +837,8 @@ ExtractValueInst *PromoteSubByte::promoteExtractValue(ExtractValueInst *extractV
   }
 
   auto newExtractValue =
-      ExtractValueInst::Create(getOrCreatePromotedValue(aggregateOp), extractValue->getIndices(), "", extractValue);
+      ExtractValueInst::Create(getOrCreatePromotedValue(aggregateOp), extractValue->getIndices(), "",
+                               extractValue->getIterator());
   newExtractValue->setDebugLoc(extractValue->getDebugLoc());
   return newExtractValue;
 }
@@ -841,7 +853,8 @@ GetElementPtrInst *PromoteSubByte::promoteGetElementPtr(GetElementPtrInst *getEl
   auto promotedType = getOrCreatePromotedType(getElementPtr->getSourceElementType());
   auto indices = SmallVector<Value *, 8>(getElementPtr->idx_begin(), getElementPtr->idx_end());
 
-  auto newGetElementPtr = GetElementPtrInst::Create(promotedType, promotedOperand, indices, "", getElementPtr);
+  auto newGetElementPtr =
+      GetElementPtrInst::Create(promotedType, promotedOperand, indices, "", getElementPtr->getIterator());
   newGetElementPtr->setDebugLoc(getElementPtr->getDebugLoc());
   newGetElementPtr->setIsInBounds(getElementPtr->isInBounds());
   return newGetElementPtr;
@@ -858,7 +871,7 @@ Value *PromoteSubByte::promoteICmp(ICmpInst *icmp) {
   auto promotedOp0 = convertI1ToI8(getOrCreatePromotedValue(op0), icmp);
   auto promotedOp1 = convertI1ToI8(getOrCreatePromotedValue(op1), icmp);
 
-  auto newICmp = new ICmpInst(icmp, icmp->getPredicate(), promotedOp0, promotedOp1, "");
+  auto newICmp = new ICmpInst(icmp->getIterator(), icmp->getPredicate(), promotedOp0, promotedOp1, "");
   newICmp->setDebugLoc(icmp->getDebugLoc());
   return convertI1ToI8(newICmp, icmp);
 }
@@ -891,7 +904,8 @@ InsertValueInst *PromoteSubByte::promoteInsertValue(InsertValueInst *insertValue
       typeNeedsPromotion(insertedValueOp->getType()) ? getOrCreatePromotedValue(insertedValueOp) : insertedValueOp;
 
   auto newInsertValue =
-      InsertValueInst::Create(newAggregateOp, newInsertedValueOp, insertValue->getIndices(), "", insertValue);
+      InsertValueInst::Create(newAggregateOp, newInsertedValueOp, insertValue->getIndices(), "",
+                              insertValue->getIterator());
   newInsertValue->setDebugLoc(insertValue->getDebugLoc());
   return newInsertValue;
 }
@@ -908,7 +922,7 @@ LoadInst *PromoteSubByte::promoteLoad(LoadInst *load) {
   auto src = load->getOperand(0);
   auto newSrc = getOrCreatePromotedValue(src);
   auto newType = getOrCreatePromotedType(load->getType());
-  auto newLoad = new LoadInst(newType, newSrc, "", load);
+  auto newLoad = new LoadInst(newType, newSrc, "", load->getIterator());
   newLoad->setAlignment(IGCLLVM::getAlign(*load));
   newLoad->setDebugLoc(load->getDebugLoc());
   return newLoad;
@@ -922,7 +936,8 @@ llvm::PHINode *PromoteSubByte::promotePHI(llvm::PHINode *phi) {
 
   visitedPHINodes.insert(phi);
 
-  auto newPhi = PHINode::Create(getOrCreatePromotedType(phi->getType()), phi->getNumIncomingValues(), "", phi);
+  auto newPhi = PHINode::Create(getOrCreatePromotedType(phi->getType()), phi->getNumIncomingValues(), "",
+                                phi->getIterator());
 
   for (unsigned i = 0; i < phi->getNumIncomingValues(); ++i) {
     auto newIncomingValue = phi->getIncomingValue(i);
@@ -955,7 +970,7 @@ StoreInst *PromoteSubByte::promoteStore(StoreInst *store) {
   auto promotedSrc = convertI1ToI8(getOrCreatePromotedValue(src), store);
   auto promotedDst = convertI1ToI8(getOrCreatePromotedValue(dst), store);
 
-  auto newStore = new StoreInst(promotedSrc, promotedDst, store->isVolatile(), store);
+  auto newStore = new StoreInst(promotedSrc, promotedDst, store->isVolatile(), store->getIterator());
   newStore->setAlignment(IGCLLVM::getAlign(*store));
   newStore->setDebugLoc(store->getDebugLoc());
   return newStore;
@@ -967,7 +982,8 @@ IntToPtrInst *PromoteSubByte::promoteIntToPtr(IntToPtrInst *inttoptr) {
   }
 
   auto newIntToPtr = new IntToPtrInst(getOrCreatePromotedValue(inttoptr->getOperand(0)),
-                                      getOrCreatePromotedType(inttoptr->getDestTy()), "", inttoptr);
+                                      getOrCreatePromotedType(inttoptr->getDestTy()), "",
+                                      inttoptr->getIterator());
   newIntToPtr->setDebugLoc(inttoptr->getDebugLoc());
   return newIntToPtr;
 }

@@ -114,7 +114,7 @@ void LowerInvokeSIMD::visitCallInst(CallInst &CI) {
     fixUniformParamsAndSIMDSize(Callee, *NewCall);
 
   } else {
-    auto PTy = PointerType::get(FTy, cast<PointerType>(CI.getArgOperand(0)->getType())->getAddressSpace());
+    auto PTy = PointerType::get(CI.getContext(), cast<PointerType>(CI.getArgOperand(0)->getType())->getAddressSpace());
     auto CastedPointer = m_Builder->CreateBitCast(CI.getArgOperand(0), PTy);
     NewCall = m_Builder->CreateCall(FTy, CastedPointer, ArgVals);
   }
