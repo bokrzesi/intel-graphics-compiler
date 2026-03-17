@@ -294,7 +294,7 @@ void LSCCacheOptimizationPass::visitStoreInst(StoreInst &storeInst) {
 
     /* First do the GGRR 32 wide store */
     // %0 = bitcast <>* %baseAddress to i8*
-    auto *bitcast1 = builder.CreateBitCast(initial_pointer, builder.getInt8PtrTy(addrspace));
+    auto *bitcast1 = builder.CreateBitCast(initial_pointer, builder.getInt8PtrTy(DL, addrspace));
     // %1 = getelementptr i8, i8* %0, i64 -offset
     auto *left_green_address = builder.CreateGEP(builder.getInt8Ty(), bitcast1, builder.getInt64(-1 * offset));
     // %2 = bitcast i8* %1 to <num_green_blocks_left x iN>*
@@ -369,7 +369,7 @@ void LSCCacheOptimizationPass::visitStoreInst(StoreInst &storeInst) {
       uint64_t num_blue_blocks = data_size / element_size;
 
       // %0 = bitcast <>* %baseAddress to i8*
-      auto *bitcast1 = builder.CreateBitCast(initial_pointer, builder.getInt8PtrTy(addrspace));
+      auto *bitcast1 = builder.CreateBitCast(initial_pointer, builder.getInt8PtrTy(DL, addrspace));
       // %1 = getelementptr i8, i8* %0, i64 data_size
       auto *green_address = builder.CreateGEP(builder.getInt8Ty(), bitcast1, builder.getInt64(data_size));
       // %2 = bitcast i8* %1 to <num_green_blocks x iN>*
@@ -407,7 +407,7 @@ void LSCCacheOptimizationPass::visitStoreInst(StoreInst &storeInst) {
       uint64_t num_blue_blocks = data_size / element_size;
 
       // %0 = bitcast <>* %baseAddress to i8*
-      auto *bitcast1 = builder.CreateBitCast(initial_pointer, builder.getInt8PtrTy(addrspace));
+      auto *bitcast1 = builder.CreateBitCast(initial_pointer, builder.getInt8PtrTy(DL, addrspace));
       // %1 = getelementptr i8, i8* %0, i64 -offset
       auto *green_address = builder.CreateGEP(builder.getInt8Ty(), bitcast1, builder.getInt64(-1 * offset));
       // %2 = bitcast i8* %1 to <num_green_blocks x iN>*
@@ -443,7 +443,7 @@ void LSCCacheOptimizationPass::visitStoreInst(StoreInst &storeInst) {
       uint64_t num_total_blocks = right_boundary / element_size;
 
       // %0 = bitcast <>* %baseAddress to i8*
-      auto *bitcast1 = builder.CreateBitCast(initial_pointer, builder.getInt8PtrTy(addrspace));
+      auto *bitcast1 = builder.CreateBitCast(initial_pointer, builder.getInt8PtrTy(DL, addrspace));
       // %1 = getelementptr i8, i8* %0, i64 -offset
       auto *starting_address = builder.CreateGEP(builder.getInt8Ty(), bitcast1, builder.getInt64(-1 * offset));
       // %2 = bitcast i8* %1 to <num_total_blocks x iN>*
