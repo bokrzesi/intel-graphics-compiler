@@ -826,7 +826,8 @@ void ConstantCoalescing::SetAlignmentFromOffset(Instruction *load) {
   }
   IGC_ASSERT(offset != nullptr);
   const DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();
-  KnownBits kb = computeKnownBits(offset, *dataLayout, 0 /*current depth*/, nullptr /*AssumptionCache*/, load, &DT);
+  KnownBits kb = computeKnownBits(offset, *dataLayout, nullptr /*AssumptionCache*/, load, &DT,
+                                  false /*UseInstrInfo*/, 0 /*Depth*/);
   uint32_t numTrailZeros = std::min(kb.countMinTrailingZeros(), Value::MaxAlignmentExponent);
   alignment_t alignment = (1ull << std::min(kb.getBitWidth() - 1, numTrailZeros));
   alignment = std::max<alignment_t>(alignment, m_ChunkMinAlignment);

@@ -46,6 +46,7 @@ SPDX-License-Identifier: MIT
 #include "llvm/IR/ValueMap.h"
 #include <llvm/Support/ToolOutputFile.h>
 #include "llvm/IR/AssemblyAnnotationWriter.h"
+#include "llvm/IR/LLVMRemarkStreamer.h"
 #include "common/LLVMWarningsPop.hpp"
 #include <optional>
 #include "CodeGenPublicEnums.h"
@@ -1013,7 +1014,7 @@ private:
   std::stringstream oclErrorMessage;
   // For storing warning message
   std::stringstream oclWarningMessage;
-  std::unique_ptr<llvm::ToolOutputFile> RemarksFile;
+  llvm::LLVMRemarkFileHandle RemarksFile;
 
 protected:
   // Objects pointed to by these pointers are owned by this class.

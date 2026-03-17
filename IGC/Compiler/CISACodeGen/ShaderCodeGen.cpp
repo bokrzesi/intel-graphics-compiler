@@ -155,6 +155,7 @@ SPDX-License-Identifier: MIT
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/IR/Function.h>
 #include <llvm/Analysis/ScopedNoAliasAA.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Transforms/IPO/FunctionAttrs.h>
@@ -501,8 +502,7 @@ void AddLegalizationPasses(CodeGenContext &ctx, IGCPassManager &mpm, PSSignature
   if (disableConvergentInstructionsHoisting || IGC_IS_FLAG_ENABLED(ForceAllPrivateMemoryToSLM) ||
       IGC_IS_FLAG_ENABLED(ForcePrivateMemoryToSLMOnBuffers)) {
     TargetIRAnalysis GenTTgetIIRAnalysis([&](const Function &F) {
-      GenIntrinsicsTTIImpl GTTI(&ctx);
-      return TargetTransformInfo(GTTI);
+      return TargetTransformInfo(std::make_unique<GenIntrinsicsTTIImpl>(&ctx));
     });
     mpm.add(new TargetTransformInfoWrapperPass(std::move(GenTTgetIIRAnalysis)));
   }
@@ -510,7 +510,7 @@ void AddLegalizationPasses(CodeGenContext &ctx, IGCPassManager &mpm, PSSignature
   // Disable all target library functions.
   // right now we don't support any standard function in the code gen
   // maybe we want to support some at some point to take advantage of LLVM optimizations
-  TargetLibraryInfoImpl TLI;
+  TargetLibraryInfoImpl TLI(Triple(ctx.getModule()->getTargetTriple()));
   TLI.disableAllFunctions();
   mpm.add(new llvm::TargetLibraryInfoWrapperPass(TLI));
 
@@ -539,7 +539,9 @@ void AddLegalizationPasses(CodeGenContext &ctx, IGCPassManager &mpm, PSSignature
     mpm.add(createLoopCanonicalization());
     mpm.add(IGCLLVM::createLegacyWrappedLoopDeletionPass());
     mpm.add(llvm::createBreakCriticalEdgesPass());
+  #if LLVM_VERSION_MAJOR < 22
     mpm.add(llvm::createLoopRotatePass(LOOP_ROTATION_HEADER_INST_THRESHOLD));
+  #endif
     mpm.add(llvm::createLowerSwitchPass());
 
     int LoopUnrollThreshold = ctx.m_DriverInfo.GetLoopUnrollThreshold();
@@ -1254,15 +1256,14 @@ void OptimizeIR(CodeGenContext *const pContext) {
 
     // right now we don't support any standard function in the code gen
     // maybe we want to support some at some point to take advantage of LLVM optimizations
-    TargetLibraryInfoImpl TLI;
+    TargetLibraryInfoImpl TLI(Triple(pContext->getModule()->getTargetTriple()));
     TLI.disableAllFunctions();
 
     mpm.add(new MetaDataUtilsWrapper(pMdUtils, pContext->getModuleMetaData()));
 
     mpm.add(new CodeGenContextWrapper(pContext));
     TargetIRAnalysis GenTTgetIIRAnalysis([&](const Function &F) {
-      GenIntrinsicsTTIImpl GTTI(pContext);
-      return TargetTransformInfo(GTTI);
+      return TargetTransformInfo(std::make_unique<GenIntrinsicsTTIImpl>(pContext));
     });
 
     mpm.add(new TargetTransformInfoWrapperPass(GenTTgetIIRAnalysis));
@@ -1405,7 +1406,9 @@ void OptimizeIR(CodeGenContext *const pContext) {
         mpm.add(createLoopCanonicalization());
         mpm.add(IGCLLVM::createLegacyWrappedLoopDeletionPass());
         mpm.add(llvm::createBreakCriticalEdgesPass());
+      #if LLVM_VERSION_MAJOR < 22
         mpm.add(llvm::createLoopRotatePass(LOOP_ROTATION_HEADER_INST_THRESHOLD));
+      #endif
         mpm.add(llvm::createLCSSAPass());
         mpm.add(llvm::createLoopSimplifyPass());
       }
@@ -1652,7 +1655,9 @@ void OptimizeIR(CodeGenContext *const pContext) {
         assert(disableGOPT);
         // disable loop unroll for excessive large shaders
         if (pContext->m_instrTypes.numOfLoop) {
+#if LLVM_VERSION_MAJOR < 22
           mpm.add(llvm::createLoopRotatePass(LOOP_ROTATION_HEADER_INST_THRESHOLD));
+#endif
 
 
           int LoopUnrollThreshold = pContext->m_DriverInfo.GetLoopUnrollThreshold();

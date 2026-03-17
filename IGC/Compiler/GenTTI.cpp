@@ -35,7 +35,7 @@ using namespace IGC;
 
 namespace llvm {
 
-bool GenIntrinsicsTTIImpl::isLoweredToCall(const Function *F) {
+bool GenIntrinsicsTTIImpl::isLoweredToCall(const Function *F) const {
   if (GenISAIntrinsic::isIntrinsic(F))
     return false;
   return BaseT::isLoweredToCall(F);
@@ -45,7 +45,7 @@ bool GenIntrinsicsTTIImpl::isLoweredToCall(const Function *F) {
 // instructions. Set this to false unless IGC legalization can fix them.
 bool GenIntrinsicsTTIImpl::shouldBuildLookupTables() { return false; }
 
-bool GenIntrinsicsTTIImpl::enablePromoteLoopUnrollwithAlloca() {
+bool GenIntrinsicsTTIImpl::enablePromoteLoopUnrollwithAlloca() const {
   const IGC::TriboolFlag RK_PromoteLoopUnrollwithAlloca =
       static_cast<TriboolFlag>(IGC_GET_FLAG_VALUE(ForcePromoteLoopUnrollwithAlloca));
   switch (RK_PromoteLoopUnrollwithAlloca) {
@@ -303,7 +303,7 @@ void GenIntrinsicsTTIImpl::getUnrollingPreferences(Loop *L, ScalarEvolution &SE,
   }
 
   if (UnrollLoopForCodeSizeOnly) {
-    UP.Threshold = getLoopSize(L, *this) + 1;
+    UP.Threshold = getLoopSize(L) + 1;
     UP.MaxPercentThresholdBoost = 100;
     UP.Partial = false;
   }
@@ -425,9 +425,11 @@ void GenIntrinsicsTTIImpl::getUnrollingPreferences(Loop *L, ScalarEvolution &SE,
     if (L->getNumBlocks() == 1) {
       BasicBlock *BB = *L->block_begin();
 
-      SmallPtrSet<const Value *, 32> EphValues;
       CodeMetrics Metrics;
-      Metrics.analyzeBasicBlock(BB, *this, EphValues);
+      for (const auto &Inst : *BB) {
+        if (!Inst.isDebugOrPseudoInst())
+          ++Metrics.NumInsts;
+      }
       if (Metrics.NumInsts < 50) {
         for (auto I = BB->begin(), E = BB->end(); I != E; ++I) {
           CallInst *Call = dyn_cast<CallInst>(I);
@@ -672,19 +674,19 @@ bool GenIntrinsicsTTIImpl::isProfitableToHoist(Instruction *I) {
 
 // TODO: Upon the complete removal of pre-LLVM 14 conditions, move to 'getInstructionCost' per LLVM 16 API
 llvm::InstructionCost GenIntrinsicsTTIImpl::getUserCost(const User *U, ArrayRef<const Value *> Operands,
-                                                        TTI::TargetCostKind CostKind) {
+                                                        TTI::TargetCostKind CostKind) const {
   return GenIntrinsicsTTIImpl::internalCalculateCost(U, Operands, CostKind);
 }
 
 #if LLVM_VERSION_MAJOR >= 16
 llvm::InstructionCost GenIntrinsicsTTIImpl::getInstructionCost(const User *U, ArrayRef<const Value *> Operands,
-                                                               TTI::TargetCostKind CostKind) {
+                                                               TTI::TargetCostKind CostKind) const {
   return GenIntrinsicsTTIImpl::internalCalculateCost(U, Operands, CostKind);
 }
 #endif
 
 llvm::InstructionCost GenIntrinsicsTTIImpl::internalCalculateCost(const User *U, ArrayRef<const Value *> Operands,
-                                                                  TTI::TargetCostKind CostKind) {
+                                                                  TTI::TargetCostKind CostKind) const {
   // The extra cost of speculative execution for math intrinsics
   if (auto *II = dyn_cast_or_null<IntrinsicInst>(U)) {
     if (Intrinsic::ID IID = II->getIntrinsicID()) {
@@ -735,18 +737,20 @@ llvm::InstructionCost GenIntrinsicsTTIImpl::internalCalculateCost(const User *U,
 }
 
 // Strip from LLVM::LoopUnrollPass::ApproximateLoopSize
-unsigned getLoopSize(const Loop *L, const TargetTransformInfo &TTI) {
-  SmallPtrSet<const Value *, 32> EphValues;
-
+unsigned getLoopSize(const Loop *L) {
   CodeMetrics Metrics;
-  for (BasicBlock *BB : L->blocks())
-    Metrics.analyzeBasicBlock(BB, TTI, EphValues);
+  for (BasicBlock *BB : L->blocks()) {
+    for (const auto &Inst : *BB) {
+      if (!Inst.isDebugOrPseudoInst())
+        ++Metrics.NumInsts;
+    }
+  }
 
   InstructionCost LoopSize;
   LoopSize = Metrics.NumInsts;
 
   LoopSize = (LoopSize > 3 /*BEInsns + 1*/) ? LoopSize : 3;
-  return *LoopSize.getValue();
+  return static_cast<unsigned>(LoopSize.getValue());
 }
 
 } // namespace llvm

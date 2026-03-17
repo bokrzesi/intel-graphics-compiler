@@ -100,7 +100,7 @@ template <typename LHS_t, typename RHS_t, typename Pred_t> struct FMaxMinCast_ma
     return false;
   }
 
-  template <typename OpTy> bool match(OpTy *V) {
+  template <typename OpTy> bool match(OpTy *V) const {
     SelectInst *SI = dyn_cast<SelectInst>(V);
     if (!SI)
       return false;
@@ -163,7 +163,7 @@ template <typename Op_t, typename ConstTy> struct ClampWithConstants_match {
 
   ClampWithConstants_match(const Op_t &OpMatch, ConstPtrTy &Min, ConstPtrTy &Max) : Op(OpMatch), CMin(Min), CMax(Max) {}
 
-  template <typename OpTy> bool match(OpTy *V) {
+  template <typename OpTy> bool match(OpTy *V) const {
     CallInst *GII = dyn_cast<CallInst>(V);
     if (!GII)
       return false;
@@ -501,7 +501,7 @@ bool GEPLowering::simplifyGEP(BasicBlock &BB) {
     for (auto PI = B.second.rbegin(), PE = B.second.rend(); PI != PE; ++PI) {
       auto &P = *PI;
       if (P.Offset) {
-        SCEVExpander E(*SE, *DL, "gep-simplification");
+        SCEVExpander E(*SE, "gep-simplification");
         Value *V = E.expandCodeFor(P.Offset, P.Idx->getType(), P.GEP);
         Builder->SetInsertPoint(P.GEP);
         auto *NewGEP = Builder->CreateInBoundsGEP(P.Base->getResultElementType(), P.Base,

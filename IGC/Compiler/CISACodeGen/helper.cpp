@@ -2220,7 +2220,7 @@ bool isNoOpInst(Instruction *I, CodeGenContext *Ctx) {
 //
 //
 bool valueIsPositive(Value *V, const DataLayout *DL, llvm::AssumptionCache *AC, llvm::Instruction *CxtI) {
-  return computeKnownBits(V, *DL, 0, AC, CxtI).isNonNegative();
+  return computeKnownBits(V, *DL, AC, CxtI, nullptr, false, 0).isNonNegative();
 }
 
 void appendToUsed(llvm::Module &M, ArrayRef<GlobalValue *> Values) {
@@ -2240,7 +2240,7 @@ void appendToUsed(llvm::Module &M, ArrayRef<GlobalValue *> Values) {
       GV->eraseFromParent();
   }
 
-  Type *Int8PtrTy = llvm::Type::getInt8PtrTy(M.getContext());
+  auto Int8PtrTy = llvm::PointerType::get(M.getContext(), 0);
   for (auto *V : Values) {
     Constant *C = V;
     // llvm will complain if members of llvm.uses doesn't have a name

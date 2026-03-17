@@ -592,7 +592,7 @@ elseif(_igc_compiler_is_gnu)
       ALIAS DebugInfoDisabled          "-g0"
       ALIAS DebugInfoEmbedded          "-g"
       ALIAS DebugInfoProgramDatabase   "-g"
-      ALIAS DisableSpecificWarnings    "-Wno-misleading-indentation" "-Wno-parentheses" "-Wno-sizeof-array-div" "-Wno-stringop-truncation" "-Wno-stringop-overflow" "-Wno-char-subscripts"
+      ALIAS DisableSpecificWarnings    "-Wno-misleading-indentation" "-Wno-parentheses" "-Wno-sizeof-array-div" "-Wno-stringop-truncation" "-Wno-stringop-overflow" "-Wno-char-subscripts" "-Wno-error=deprecated-declarations"
       ALIAS DisableSpecificWarningsCpp "-Wno-overloaded-virtual" "-Wno-reorder" "-Wno-nonnull-compare" "-Wno-odr"
       ALIAS ExceptionsDisabled         "-fno-exceptions"
       ALIAS ExceptionsEnabled          "-fexceptions"
@@ -652,7 +652,7 @@ elseif(_igc_compiler_is_clang)
       ALIAS DebugInfoDisabled          DebugInfoFormat REMOVE_GROUP
       ALIAS DebugInfoEmbedded          "-g"
       ALIAS DebugInfoProgramDatabase   "-g"
-      ALIAS DisableSpecificWarnings    "-Wno-error=unknown-warning-option" "-Wno-nontrivial-memcall"
+      ALIAS DisableSpecificWarnings    "-Wno-error=unknown-warning-option" "-Wno-nontrivial-memcall" "-Wno-error=deprecated-declarations"
       ALIAS DisableSpecificWarningsCpp
       ALIAS ExceptionsDisabled         Exceptions REMOVE_GROUP
       ALIAS ExceptionsEnabled          "-fexceptions"

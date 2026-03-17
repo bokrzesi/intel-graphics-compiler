@@ -200,7 +200,7 @@ void WorkItemSetting::collect(Function *F) {
       auto Inst = &*BI;
       // GlobalSize.X = (GlobalSize1.X == 0) ? X : GlobalSize1.X
       Value *X = nullptr;
-      ICmpInst::Predicate Pred;
+      CmpPredicate Pred;
       if (match(Inst,
                 m_Select(m_ICmp(Pred, m_Specific(GlobalSize1.X), m_Zero()), m_Value(X), m_Specific(GlobalSize1.X))) &&
           Pred == ICmpInst::ICMP_EQ) {
@@ -776,10 +776,10 @@ static bool sliceCandidateRun(BasicBlock *BB, ArrayRef<Instruction *> Run) {
 
   DenseMap<Instruction * /*Leader*/, Instruction * /*Pos*/> Leaders;
   for (auto I = ECs.begin(), E = ECs.end(); I != E; ++I) {
-    bool test = (*I)->isLeader();
-    if (!test)
+    const auto *ECV = *I;
+    if (!ECV->isLeader())
       continue;
-    Instruction *Leader = I->getData();
+    Instruction *Leader = ECV->getData();
     Leaders.insert(std::make_pair(Leader, nullptr));
   }
 
@@ -858,13 +858,14 @@ bool MadLoopSlice::sliceLoop(Loop *L) const {
   }
   DenseMap<Instruction * /*Leader*/, Instruction * /*Pos*/> Leaders;
   for (auto I = ECs.begin(), E = ECs.end(); I != E; ++I) {
-    if (!I->isLeader())
+    const auto *ECV = *I;
+    if (!ECV->isLeader())
       continue;
-    Instruction *Leader = I->getData();
+    Instruction *Leader = ECV->getData();
     // Skip EC with the loop condition.
     if (ECs.isEquivalent(Leader, BI))
       continue;
-    for (auto MI = ECs.member_begin(I), ME = ECs.member_end(); MI != ME; ++MI) {
+    for (auto MI = ECs.member_begin(*ECV), ME = ECs.member_end(); MI != ME; ++MI) {
       // Skip the slicing if there is non-MAD instructions.
       if (!isa<PHINode>(*MI) && !isCandidateMAD(*MI, CGC))
         return false;

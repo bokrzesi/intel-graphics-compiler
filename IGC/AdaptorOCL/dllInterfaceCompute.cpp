@@ -1257,7 +1257,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
       oclContext.getModuleMetaData()->csInfo.forcedSIMDSize |= IGC_GET_FLAG_VALUE(ForceOCLSIMDWidth);
 
       try {
-        if (llvm::StringRef(oclContext.getModule()->getTargetTriple()).startswith("spir")) {
+        if (llvm::StringRef(oclContext.getModule()->getTargetTriple().str()).startswith("spir")) {
           IGC::UnifyIRSPIR(&oclContext);
         } else // not SPIR
         {

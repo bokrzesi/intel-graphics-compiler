@@ -1011,7 +1011,11 @@ bool PrivateMemoryResolution::resolveAllocaInstructions(bool privateOnStack, boo
 
         // Attaching this metadata is crucial to both properly interpret this locations as stack based ond to inline it.
         // Because these are stack locations we can safely inline them even with optimizations disabled (O0).
+        #if LLVM_VERSION_MAJOR >= 22
+        auto DbgDcls = llvm::findDVRDeclares(pAI);
+        #else
         auto DbgDcls = llvm::FindDbgDeclareUses(pAI);
+        #endif
         for (auto DbgDcl : DbgDcls) {
           unsigned scalarBufferOffset = m_ModAllocaInfo->getBufferOffset(pAI);
           unsigned bufferSize = m_ModAllocaInfo->getBufferStride(pAI);
@@ -1019,9 +1023,13 @@ bool PrivateMemoryResolution::resolveAllocaInstructions(bool privateOnStack, boo
           // Attach metadata to instruction containing offset of storage
           auto OffsetMD =
               MDNode::get(builder.getContext(), ConstantAsMetadata::get(builder.getInt32(scalarBufferOffset)));
+#if LLVM_VERSION_MAJOR < 22
           DbgDcl->setMetadata("StorageOffset", OffsetMD);
+#endif
           auto SizeMD = MDNode::get(builder.getContext(), ConstantAsMetadata::get(builder.getInt32(bufferSize)));
+#if LLVM_VERSION_MAJOR < 22
           DbgDcl->setMetadata("StorageSize", SizeMD);
+#endif
         }
       }
       // Replace all uses of original alloca with the bitcast
@@ -1201,11 +1209,11 @@ bool PrivateMemoryResolution::resolveAllocaInstructions(bool privateOnStack, boo
   // because getImplicitArgValue() can move instructions, and it means that the insert point will be moved too.
   Instruction *pointInstr = &*entryBuilder.GetInsertPoint();
   if (pointInstr->isDebugOrPseudoInst())
-    pointInstr = pointInstr->getNextNonDebugInstruction();
+    pointInstr = pointInstr->getNextNode();
   if (GenIntrinsicInst *inst = dyn_cast_or_null<GenIntrinsicInst>(pointInstr)) {
     if (inst->getIntrinsicID() == GenISAIntrinsic::GenISA_getR0 ||
         inst->getIntrinsicID() == GenISAIntrinsic::GenISA_getPrivateBase)
-      pointInstr = inst->getNextNonDebugInstruction();
+      pointInstr = inst->getNextNode();
   }
 
   // Find the implicit argument representing r0 and the private memory base.
@@ -1313,13 +1321,19 @@ bool PrivateMemoryResolution::resolveAllocaInstructions(bool privateOnStack, boo
     // We can only safely inline such locations with optimizations disabled.
     // On O2 we have no guarantee the offsets in registers are gonna be valid throughout the entire variable lifetime.
     if (modMD->compOpt.OptDisable) {
+      #if LLVM_VERSION_MAJOR >= 22
+      auto DbgDcls = llvm::findDVRDeclares(pAI);
+      #else
       auto DbgDcls = llvm::FindDbgDeclareUses(pAI);
+      #endif
       for (auto DbgDcl : DbgDcls) {
         // Attach metadata to instruction containing offset of storage
         unsigned int scalarBufferOffset = m_ModAllocaInfo->getBufferOffset(pAI);
         auto OffsetMD =
             MDNode::get(builder.getContext(), ConstantAsMetadata::get(builder.getInt32(scalarBufferOffset)));
+#if LLVM_VERSION_MAJOR < 22
         DbgDcl->setMetadata("StorageOffset", OffsetMD);
+#endif
       }
     }
 

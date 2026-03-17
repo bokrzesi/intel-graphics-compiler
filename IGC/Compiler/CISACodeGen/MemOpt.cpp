@@ -2882,7 +2882,7 @@ bool LdStCombine::hasAlias(AliasSetTracker &AST, MemoryLocation &MemLoc) {
   for (auto &AS : AST) {
     if (AS.isForwardingAliasSet())
       continue;
-    AliasResult aresult = AS.aliasesPointer(MemLoc.Ptr, MemLoc.Size, MemLoc.AATags, AST.getAliasAnalysis());
+    AliasResult aresult = AS.aliasesMemoryLocation(MemLoc, AST.getAliasAnalysis());
     if (aresult != AliasResult::NoAlias) {
       return true;
     }

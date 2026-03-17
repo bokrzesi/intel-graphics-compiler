@@ -18,6 +18,7 @@ SPDX-License-Identifier: MIT
 #include <llvmWrapper/IR/IRBuilder.h>
 #include <llvmWrapper/Transforms/Utils/Cloning.h>
 #include <unordered_map>
+#include <cmath>
 
 #include "common/LLVMWarningsPush.hpp"
 #include <llvm/IR/Function.h>
@@ -1222,11 +1223,11 @@ bool PreBIImportAnalysis::runOnModule(Module &M) {
               double fmulValue = type->isFloatTy() ? APF.convertToFloat() : APF.convertToDouble();
               const double PI = 3.1415926535897932384626433832795028841971693993751058209;
               double coefficient = fmulValue / PI;
-              intValue = trunc(coefficient);
+              intValue = std::trunc(coefficient);
               fractValue = coefficient - intValue;
             }
 
-            if (intValue != 0.0 && fabs(fractValue) <= 0.0001) {
+            if (intValue != 0.0 && std::fabs(fractValue) <= 0.0001) {
               InstToModify.push_back(std::make_tuple(fmulInst, intValue, srcPos));
 
               std::string newName;

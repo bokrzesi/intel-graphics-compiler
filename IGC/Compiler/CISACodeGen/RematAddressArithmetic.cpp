@@ -833,7 +833,7 @@ bool RematAddressArithmetic::rematerializePhiMemoryAddressCalculation(Function &
         Instruction *newIntToPtr = intToPtr->clone();
         newIntToPtr->setOperand(0, newAdd);
         // and insert in after the phi
-        Instruction *insertPoint = BB->getFirstNonPHIOrDbgOrLifetime();
+        auto insertPoint = BB->getFirstNonPHIOrDbgOrLifetime();
         newAdd->insertBefore(insertPoint);
         newIntToPtr->insertBefore(insertPoint);
         phi->replaceAllUsesWith(newIntToPtr);

@@ -270,25 +270,37 @@ public:
   }
 
   inline llvm::Value *FoldSelect(llvm::Value *C, llvm::Value *True, llvm::Value *False) const override {
-    return nullptr;
+    return m_baseConstantFolder.FoldSelect(C, True, False);
+  }
+
+  inline llvm::Value *FoldCmp(llvm::CmpInst::Predicate P, llvm::Value *LHS, llvm::Value *RHS) const override {
+    return m_baseConstantFolder.FoldCmp(P, LHS, RHS);
   }
 
   inline llvm::Value *FoldGEP(llvm::Type *Ty, llvm::Value *Ptr, llvm::ArrayRef<llvm::Value *> IdxList,
-                              bool IsInBounds = false) const {
-    return nullptr;
+                              llvm::GEPNoWrapFlags NW) const override {
+    return m_baseConstantFolder.FoldGEP(Ty, Ptr, IdxList, NW);
   }
 
-  inline llvm::Constant *CreateCast(llvm::Instruction::CastOps Op, llvm::Constant *C,
-                                    llvm::Type *DestTy) const {
-    return nullptr;
+  inline llvm::Value *FoldCast(llvm::Instruction::CastOps Op, llvm::Value *V, llvm::Type *DestTy) const override {
+    return m_baseConstantFolder.FoldCast(Op, V, DestTy);
   }
 
+  inline llvm::Value *FoldBinaryIntrinsic(llvm::Intrinsic::ID ID, llvm::Value *LHS, llvm::Value *RHS,
+                                          llvm::Type *Ty, llvm::Instruction *FMFSource = nullptr) const override {
+    return m_baseConstantFolder.FoldBinaryIntrinsic(ID, LHS, RHS, Ty, FMFSource);
+  }
+
+  inline llvm::Value *CreateCast(llvm::Instruction::CastOps Op, llvm::Constant *C, llvm::Type *DestTy) const {
+    return m_baseConstantFolder.FoldCast(Op, C, DestTy);
+  }
+ 
   inline llvm::Constant *CreatePointerCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return nullptr;
+    return m_baseConstantFolder.CreatePointerCast(C, DestTy);
   }
-
+ 
   inline llvm::Constant *CreatePointerBitCastOrAddrSpaceCast(llvm::Constant *C, llvm::Type *DestTy) const override {
-    return nullptr;
+    return m_baseConstantFolder.CreatePointerBitCastOrAddrSpaceCast(C, DestTy);
   }
 
   inline llvm::Constant *CreateIntCast(llvm::Constant *C, llvm::Type *DestTy, bool isSigned) const {

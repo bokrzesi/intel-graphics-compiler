@@ -1193,13 +1193,13 @@ Instruction *LSCFuncsResolution::CreateLSCSimdBlockPrefetchIntrinsicCallInst(Str
 
   LscTypeInfo typeInfo{};
 
-  if (elementTypeName.equals("uchar")) {
+  if (elementTypeName == "uchar") {
     typeInfo.dataSize = LSC_DATA_SIZE_8b;
-  } else if (elementTypeName.equals("ushort")) {
+  } else if (elementTypeName == "ushort") {
     typeInfo.dataSize = LSC_DATA_SIZE_16b;
-  } else if (elementTypeName.equals("uint")) {
+  } else if (elementTypeName == "uint") {
     typeInfo.dataSize = LSC_DATA_SIZE_32b;
-  } else if (elementTypeName.equals("ulong")) {
+  } else if (elementTypeName == "ulong") {
     typeInfo.dataSize = LSC_DATA_SIZE_64b;
   }
 

@@ -309,7 +309,7 @@ void CustomLoopVersioning::hoistSeg2Invariant(Loop *loop, Instruction *fmul, Val
   if (fmul_log2 && fmul_log2->getParent() == body) {
     IntrinsicInst *intrin = dyn_cast<IntrinsicInst>(*fmul_log2->users().begin());
     if (intrin && intrin->getIntrinsicID() == Intrinsic::exp2) {
-      IRBuilder<> irb(preHdr->getFirstNonPHIOrDbg());
+      IRBuilder<> irb(&*preHdr->getFirstNonPHIOrDbg());
       irb.setFastMathFlags(fmul_log2->getFastMathFlags());
 
       Function *flog =

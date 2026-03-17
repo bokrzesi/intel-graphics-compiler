@@ -565,7 +565,7 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
   StringRef funcName = func->getName();
   LLVMContext &Ctx = CI.getCalledFunction()->getContext();
 
-  if (funcName.equals(SubGroupFuncsResolution::GET_MAX_SUB_GROUP_SIZE)) {
+  if (funcName == SubGroupFuncsResolution::GET_MAX_SUB_GROUP_SIZE) {
     int32_t simdSize = GetSIMDSize(CI.getParent()->getParent());
     if (simdSize == 8 || simdSize == 16 || simdSize == 32) {
       auto *C = ConstantInt::get(Type::getInt32Ty(Ctx), simdSize);
@@ -579,7 +579,7 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
       CI.replaceAllUsesWith(simdSize);
     }
     CI.eraseFromParent();
-  } else if (funcName.equals(SubGroupFuncsResolution::GET_SUB_GROUP_LOCAL_ID)) {
+  } else if (funcName == SubGroupFuncsResolution::GET_SUB_GROUP_LOCAL_ID) {
     // Creates intrinsics that will be lowered in the CodeGen and will handle the sub_group_local_id
     IntegerType *typeInt32 = Type::getInt32Ty(Ctx);
 
@@ -591,13 +591,13 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
     updateDebugLoc(&CI, simdLaneId);
     CI.replaceAllUsesWith(simdLaneId);
     CI.eraseFromParent();
-  } else if (funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_US) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_F) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_H) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_C) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_B) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_DF)) {
+  } else if (funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_US ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_F ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_H ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_C ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_B ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_DF) {
     // Creates intrinsics that will be lowered in the CodeGen and will handle the sub_group_shuffle function
     IRBuilder<> IRB(&CI);
     Value *args[3];
@@ -611,13 +611,13 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
     updateDebugLoc(&CI, simdShuffle);
     CI.replaceAllUsesWith(simdShuffle);
     CI.eraseFromParent();
-  } else if (funcName.equals(SubGroupFuncsResolution::SUB_GROUP_BROADCAST) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_BROADCAST_US) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_BROADCAST_F) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_BROADCAST_H) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_BROADCAST_C) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_BROADCAST_B) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_BROADCAST_DF)) {
+  } else if (funcName == SubGroupFuncsResolution::SUB_GROUP_BROADCAST ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_BROADCAST_US ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_BROADCAST_F ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_BROADCAST_H ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_BROADCAST_C ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_BROADCAST_B ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_BROADCAST_DF) {
     // Creates intrinsics that will be lowered in the CodeGen and will handle the sub_group_broadcast function
     IRBuilder<> IRB(&CI);
     Value *args[3];
@@ -631,13 +631,13 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
     updateDebugLoc(&CI, simdBroadcast);
     CI.replaceAllUsesWith(simdBroadcast);
     CI.eraseFromParent();
-  } else if (funcName.equals(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_US) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_F) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_H) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_C) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_B) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_DF)) {
+  } else if (funcName == SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_US ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_F ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_H ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_C ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_B ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_CLUSTERED_BROADCAST_DF) {
     // Creates intrinsics that will be lowered in the CodeGen and will handle the sub_group_clustered_broadcast function
     IRBuilder<> IRB(&CI);
     Value *args[4];
@@ -662,9 +662,9 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
     updateDebugLoc(&CI, simdClusteredBroadcast);
     CI.replaceAllUsesWith(simdClusteredBroadcast);
     CI.eraseFromParent();
-  } else if (funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_DOWN) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_DOWN_US) ||
-             funcName.equals(SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_DOWN_UC)) {
+  } else if (funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_DOWN ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_DOWN_US ||
+             funcName == SubGroupFuncsResolution::SUB_GROUP_SHUFFLE_DOWN_UC) {
     // Creates intrinsics that will be lowered in the CodeGen and will handle the sub_group_shuffle_down function
     Value *args[3];
     args[0] = CI.getArgOperand(0);
@@ -890,7 +890,7 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
 
     CI.replaceAllUsesWith(MediaBlockWrite);
     CI.eraseFromParent();
-  } else if (funcName.equals(SubGroupFuncsResolution::MEDIA_BLOCK_RECTANGLE_READ)) {
+  } else if (funcName == SubGroupFuncsResolution::MEDIA_BLOCK_RECTANGLE_READ) {
     // Creates intrinsics that will be lowered in the CodeGen and will handle the simd_media_block_read_8
     SmallVector<Value *, 5> args;
     pushMediaBlockArgs(args, CI);
@@ -905,7 +905,7 @@ void SubGroupFuncsResolution::visitCallInst(CallInst &CI) {
     updateDebugLoc(&CI, MediaBlockRectangleRead);
     CI.replaceAllUsesWith(MediaBlockRectangleRead);
     CI.eraseFromParent();
-  } else if (funcName.equals(SubGroupFuncsResolution::GET_IMAGE_BTI)) {
+  } else if (funcName == SubGroupFuncsResolution::GET_IMAGE_BTI) {
     if (m_argIndexMap.empty()) {
       BTIHelper(CI);
     }

@@ -482,7 +482,7 @@ template <typename Op_t, typename ConstTy> struct ClampWithConstants_match {
 
   ClampWithConstants_match(const Op_t &OpMatch, ConstPtrTy &Min, ConstPtrTy &Max) : Op(OpMatch), CMin(Min), CMax(Max) {}
 
-  template <typename OpTy> bool match(OpTy *V) {
+  template <typename OpTy> bool match(OpTy *V) const {
     CallInst *GII = dyn_cast<CallInst>(V);
     if (!GII)
       return false;
@@ -537,7 +537,7 @@ template <typename Op_t> struct IsNaN_match {
 
   IsNaN_match(const Op_t &OpMatch) : Op(OpMatch) {}
 
-  template <typename OpTy> bool match(OpTy *V) {
+  template <typename OpTy> bool match(OpTy *V) const {
     using namespace llvm::PatternMatch;
 
     FCmpInst *FCI = dyn_cast<FCmpInst>(V);
@@ -673,16 +673,16 @@ CodeGenPatternMatch::isFPToUnsignedIntSatWithInexactConstant(llvm::SelectInst *S
   if (!CMax || !CMin || !CMax->isMaxValue(false) || !CMin->isMinValue(false))
     return std::make_tuple(nullptr, 0, ISA_TYPE_F);
 
-  Constant *FMin = ConstantExpr::getUIToFP(CMin, Ty);
-  Constant *FMax = ConstantExpr::getUIToFP(CMax, Ty);
+  Constant *FMin = ConstantExpr::getCast(Instruction::UIToFP, CMin, Ty);
+  Constant *FMax = ConstantExpr::getCast(Instruction::UIToFP, CMax, Ty);
 
-  FCmpInst::Predicate Pred = FCmpInst::FCMP_FALSE;
+  CmpPredicate Pred = FCmpInst::FCMP_FALSE;
   if (!match(Cond2, m_FCmp(Pred, m_Specific(X), m_Specific(FMax))))
     return std::make_tuple(nullptr, 0, ISA_TYPE_F);
   if (Pred != FCmpInst::FCMP_OGT) // FIXME: We should use OGE instead of OGT.
     return std::make_tuple(nullptr, 0, ISA_TYPE_F);
 
-  FCmpInst::Predicate Pred2 = FCmpInst::FCMP_FALSE;
+  CmpPredicate Pred2 = FCmpInst::FCMP_FALSE;
   if (!match(Cond, m_Or(m_FCmp(Pred, m_Specific(X), m_Specific(FMin)), m_FCmp(Pred2, m_Specific(X), m_Specific(X))))) {
     if (!match(Cond, m_Or(m_FCmp(Pred, m_Specific(X), m_Specific(FMin)), m_Zero()))) {
       return std::make_tuple(nullptr, 0, ISA_TYPE_F);
@@ -3016,7 +3016,7 @@ bool CodeGenPatternMatch::MatchLoadStoreAtomicsStatelessUniformBase(llvm::Instru
     auto ScaleImm = 1ll << Scale->getSExtValue();
     if (DataSizeInBytes == ScaleImm) {
       Offset = NotScaledOffset;
-      Scale = ConstantInt::get(Scale->getType(), ScaleImm);
+      Scale = ConstantInt::get(cast<IntegerType>(Scale->getType()), ScaleImm);
     } else {
       Scale = nullptr;
     }
@@ -3226,7 +3226,7 @@ bool CodeGenPatternMatch::MatchLoadStoreAtomicsStatefulEff64(GenIntrinsicInst *I
         int64_t ScaleImm = 1ll << Scale->getSExtValue();
         if (DataSizeInBytes == ScaleImm) {
           VarOffset = NotScaledOffset;
-          Scale = ConstantInt::get(Scale->getType(), ScaleImm);
+          Scale = ConstantInt::get(cast<IntegerType>(Scale->getType()), ScaleImm);
         } else {
           Scale = nullptr;
         }

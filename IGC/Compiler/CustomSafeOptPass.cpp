@@ -889,7 +889,11 @@ void CustomSafeOptPass::visitAllocaInst(AllocaInst &I) {
 
   // A debug line info is moved so the alloca has corresponding dbg.declare call
   // with DIExpression DW_OP_LLVM_fragment specifying fragment.
+#if LLVM_VERSION_MAJOR >= 22
+  auto Dbgs = llvm::findDVRDeclares(&I);
+#else
   auto Dbgs = llvm::FindDbgDeclareUses(&I);
+#endif
   unsigned typeSize = (unsigned)pType->getArrayElementType()->getPrimitiveSizeInBits();
   if (!Dbgs.empty()) {
     const DebugLoc DL = I.getDebugLoc();
@@ -902,7 +906,7 @@ void CustomSafeOptPass::visitAllocaInst(AllocaInst &I) {
         NewExpr = *E;
         if (Instruction *NewAllocaInst = dyn_cast<Instruction>(newAlloca)) {
           if (Var)
-            DIB.insertDeclare(newAlloca, Var, NewExpr, DL, NewAllocaInst);
+            DIB.insertDeclare(newAlloca, Var, NewExpr, DL, NewAllocaInst->getIterator());
         }
       }
     }

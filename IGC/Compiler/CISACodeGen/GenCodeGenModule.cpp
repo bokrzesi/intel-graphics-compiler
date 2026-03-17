@@ -1111,7 +1111,7 @@ namespace {
 
 #if LLVM_VERSION_MAJOR > 16 && !defined(IGC_LLVM_TRUNK_REVISION)
 AAResults createLegacyPMAAResults(Pass &P, Function &F, BasicAAResult &BAR) {
-  AAResults AAR(P.getAnalysis<TargetLibraryInfoWrapperPass>().getTLI());
+  AAResults AAR(P.getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F));
   AAR.addAAResult(BAR);
 
   // Populate the results with the other currently available AAs.
@@ -1129,7 +1129,7 @@ AAResults createLegacyPMAAResults(Pass &P, Function &F, BasicAAResult &BAR) {
 }
 
 BasicAAResult createLegacyPMBasicAAResult(Pass &P, Function &F) {
-  return BasicAAResult(F.getParent()->getDataLayout(), F, P.getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(),
+  return BasicAAResult(F.getParent()->getDataLayout(), F, P.getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F),
                        P.getAnalysis<AssumptionCacheTracker>().getAssumptionCache(F));
 }
 
@@ -1231,12 +1231,16 @@ bool SubroutineInliner::inlineCalls(CallGraphSCC &SCC) {
   ACT = &getAnalysis<AssumptionCacheTracker>();
   PSI = &getAnalysis<ProfileSummaryInfoWrapperPass>().getPSI();
   GetTLI = [&](Function &F) -> const TargetLibraryInfo & {
-    return getAnalysis<TargetLibraryInfoWrapperPass>().getTLI();
+    return getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);
   };
   auto GetAssumptionCache = [&](Function &F) -> AssumptionCache & { return ACT->getAssumptionCache(F); };
+#if LLVM_VERSION_MAJOR >= 22
+  return false;
+#else
   return IGCLLVM::inlineCallsImpl(
       SCC, CG, GetAssumptionCache, PSI, GetTLI, InsertLifetime, [&](CallBase &CB) { return getInlineCost(CB); },
       LegacyAARGetter(*this), ImportedFunctionsStats);
+#endif
 }
 #endif
 
@@ -1312,8 +1316,10 @@ bool SubroutineInliner::runOnSCC(CallGraphSCC &SCC) {
   FSA = &getAnalysis<EstimateFunctionSize>();
   MDUW = &getAnalysis<MetaDataUtilsWrapper>();
 #if LLVM_VERSION_MAJOR >= 16
+#if LLVM_VERSION_MAJOR < 22
   if (skipSCC(SCC))
     return false;
+#endif
   bool changed = inlineCalls(SCC);
 #else
   bool changed = LegacyInlinerBase::runOnSCC(SCC);
