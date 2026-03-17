@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 #include "IGCVectorizer.h"
 #include "llvmWrapper/IR/DerivedTypes.h"
+#include <queue>
 #include <algorithm>
 
 //
