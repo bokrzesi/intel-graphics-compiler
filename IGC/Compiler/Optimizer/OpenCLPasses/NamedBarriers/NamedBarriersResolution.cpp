@@ -293,12 +293,12 @@ void NamedBarriersResolution::HandleNamedBarrierInitSW(CallInst &NBarrierInitCal
   }
 
   auto newName = "__builtin_spirv_OpNamedBarrierInitialize_i32_p3__namedBarrier_p3i32";
-  SmallVector<Type *, 3> ArgsTy{Type::getInt32Ty(context), m_NamedBarrierType->getPointerTo(SPIRAS_Local),
-                                Type::getInt32PtrTy(context, SPIRAS_Local)};
+  SmallVector<Type *, 3> ArgsTy{llvm::PointerType::get(context, 0), m_NamedBarrierType->getPointerTo(SPIRAS_Local),
+                                llvm::PointerType::get(context, SPIRAS_Local)};
   Type *BaseTy = m_NamedBarrierArray->getValueType();
   auto pointerNBarrier = GetElementPtrInst::Create(BaseTy, m_NamedBarrierArray,
-                                                   {ConstantInt::get(Type::getInt64Ty(module->getContext()), 0, true),
-                                                    ConstantInt::get(Type::getInt32Ty(module->getContext()), 0, true)},
+                                                   {ConstantInt::get(llvm::PointerType::get(context, 0), 0, true),
+                                                    ConstantInt::get(llvm::PointerType::get(context, 0), 0, true)},
                                                    "", &(NBarrierInitCall));
   auto bitcastPointerNBarrier = BitCastInst::CreatePointerBitCastOrAddrSpaceCast(
       pointerNBarrier, m_NamedBarrierType->getPointerTo(SPIRAS_Local), "", &(NBarrierInitCall));

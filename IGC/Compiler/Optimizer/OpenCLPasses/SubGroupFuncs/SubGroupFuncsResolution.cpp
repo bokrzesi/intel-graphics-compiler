@@ -365,19 +365,19 @@ void SubGroupFuncsResolution::simdBlockRead(llvm::CallInst &CI, bool hasCacheCon
 
   switch (scalarSizeInBits) {
   case 8:
-    types[1] = Type::getInt8PtrTy(C, AS);
+    types[1] = llvm::PointerType::get(C, AS);
     break;
   case 16:
-    types[1] = Type::getInt16PtrTy(C, AS);
+    types[1] = llvm::PointerType::get(C, AS);
     break;
   case 64:
-    types[1] = (Type::getInt64PtrTy(C, AS));
+    types[1] = llvm::PointerType::get(C, AS);
     break;
   default:
     IGC_ASSERT_MESSAGE(0, "unrecognized bit width!");
     // assertion failed but continue code failsafe using default 32
   case 32:
-    types[1] = (Type::getInt32PtrTy(C, AS));
+    types[1] = llvm::PointerType::get(C, AS);
     break;
   }
 

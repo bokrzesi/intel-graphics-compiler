@@ -420,7 +420,9 @@ void TypeLegalizer::promoteConstant(ValueSeq *ValSeq, TypeSeq *TySeq, Constant *
 
   Type *PromotedTy = TySeq->front();
 
-  auto *ExtValue = isSigned ? ConstantExpr::getSExt(C, PromotedTy) : ConstantExpr::getZExt(C, PromotedTy);
+  auto *ExtValue = isSigned ? 
+      ConstantFoldCastOperand(Instruction::SExt, C, PromotedTy, *DL) :
+      ConstantFoldCastOperand(Instruction::ZExt, C, PromotedTy, *DL);
 
   ValSeq->push_back(ExtValue);
 }

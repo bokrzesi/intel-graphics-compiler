@@ -467,8 +467,8 @@ void ReplaceUnsupportedIntrinsics::replaceMemcpy(IntrinsicInst *I) {
   const uint32_t DstAS = MC->getDestAddressSpace();
 
   LLVMContext &C = MC->getContext();
-  Type *TySrcPtrI8 = Type::getInt8PtrTy(C, SrcAS);
-  Type *TyDstPtrI8 = Type::getInt8PtrTy(C, DstAS);
+  Type *TySrcPtrI8 = llvm::PointerType::get(C, SrcAS);
+  Type *TyDstPtrI8 = llvm::PointerType::get(C, DstAS);
 
   IGCLLVM::IRBuilder<> Builder(MC);
 
@@ -598,8 +598,8 @@ void ReplaceUnsupportedIntrinsics::replaceMemMove(IntrinsicInst *I) {
   }
 
   LLVMContext &C = MM->getContext();
-  Type *TySrcPtrI8 = Type::getInt8PtrTy(C, SrcAS);
-  Type *TyDstPtrI8 = Type::getInt8PtrTy(C, DstAS);
+  Type *TySrcPtrI8 = llvm::PointerType::get(C, SrcAS);
+  Type *TyDstPtrI8 = llvm::PointerType::get(C, DstAS);
 
   auto *F = MM->getParent()->getParent();
 
@@ -754,7 +754,7 @@ void ReplaceUnsupportedIntrinsics::replaceMemset(IntrinsicInst *I) {
   const uint32_t AS = MS->getDestAddressSpace();
 
   LLVMContext &C = MS->getContext();
-  Type *TyPtrI8 = Type::getInt8PtrTy(C, AS);
+  Type *TyPtrI8 = llvm::PointerType::get(C, AS);
 
   IGCLLVM::IRBuilder<> Builder(MS);
 
@@ -767,7 +767,7 @@ void ReplaceUnsupportedIntrinsics::replaceMemset(IntrinsicInst *I) {
   // like e.g. struct by using GetBaseType(), but for opaque pointers
   // we also need to be able to deduce this type, so we can get this
   // from investigating instructions and then using GetBaseType().
-  Type *RawDstType = Builder.getInt8Ty();
+  Type *RawDstType = Builder.getInt8Ty(I->getModule()->getDataLayout());
   if (IGCLLVM::isPointerTy(ptrTy)) {
     if (auto *alloca = dyn_cast<AllocaInst>(Dst))
       RawDstType = alloca->getAllocatedType();

@@ -23,6 +23,7 @@ SPDX-License-Identifier: MIT
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Pass.h"
+#include "llvm/IR/Module.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Support/Debug.h"
 #include "common/LLVMWarningsPop.hpp"
@@ -474,6 +475,7 @@ std::pair<Value *, APInt> IntDivRemIncrementReductionImpl::getBaseAndOffset(Valu
     LLVM_DEBUG(dbgs() << "Checking base and offset for inst: " << *I << "\n");
     auto *c0 = dyn_cast<ConstantInt>(I->getOperand(0));
     auto *c1 = dyn_cast<ConstantInt>(I->getOperand(1));
+    auto sq = SimplifyQuery(I->getFunction()->getParent()->getDataLayout(), DT, nullptr, I);
     // Return {%base, %offset} when V is of the form:
     // %V = add i32 %base, %offset
     // %V = or i32 %base, %offset (with no common bits set between both operands; guarantees equivalency to add)
@@ -483,8 +485,7 @@ std::pair<Value *, APInt> IntDivRemIncrementReductionImpl::getBaseAndOffset(Valu
       // only one operand is a constant
       if (I->getOpcode() == Instruction::Add || // ADD inst
           (I->getOpcode() == Instruction::Or && // OR inst with no common bits set between both operands
-           haveNoCommonBitsSet(I->getOperand(0), I->getOperand(1), I->getFunction()->getParent()->getDataLayout(),
-                               nullptr, I, DT))) {
+           haveNoCommonBitsSet(I->getOperand(0), I->getOperand(1), sq))) {
         if (c0)
           return {I->getOperand(1), c0->getValue()};
         else
