@@ -104,7 +104,7 @@ bool AtomicOptPass::checkFloatAtomicEmulation(Instruction *Inst, size_t &Operand
   else
     return false;
 
-  CmpInst::Predicate Pred = CmpInst::Predicate::ICMP_EQ;
+  CmpPredicate Pred(CmpInst::Predicate::ICMP_EQ);
   Instruction *FinishInstr = cast<Instruction>(AtomicFinishInstr);
   auto CmpPattern = m_Cmp(Pred, m_Instruction(Inst), m_Instruction(FinishInstr));
 

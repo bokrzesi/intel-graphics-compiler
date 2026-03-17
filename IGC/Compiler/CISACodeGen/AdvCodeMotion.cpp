@@ -776,7 +776,8 @@ static bool sliceCandidateRun(BasicBlock *BB, ArrayRef<Instruction *> Run) {
 
   DenseMap<Instruction * /*Leader*/, Instruction * /*Pos*/> Leaders;
   for (auto I = ECs.begin(), E = ECs.end(); I != E; ++I) {
-    if (!I->isLeader())
+    bool test = (*I)->isLeader();
+    if (!test)
       continue;
     Instruction *Leader = I->getData();
     Leaders.insert(std::make_pair(Leader, nullptr));
