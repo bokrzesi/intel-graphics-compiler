@@ -84,9 +84,9 @@ void ExtensionFuncsAnalysis::visitCallInst(CallInst &CI) {
   // Check for VME function calls
   if (Function *F = CI.getCalledFunction()) {
     StringRef funcName = F->getName();
-    if (funcName.equals(VME_MB_BLOCK_TYPE) || funcName.equals(VME_SUBPIXEL_MODE) ||
-        funcName.equals(VME_SAD_ADJUST_MODE) || funcName.equals(VME_SEARCH_PATH_TYPE) ||
-        funcName.startswith(VME_HELPER_GET_HANDLE) || funcName.startswith(VME_HELPER_GET_AS)) {
+    if (funcName == (VME_MB_BLOCK_TYPE) || funcName == (VME_SUBPIXEL_MODE) ||
+        funcName == (VME_SAD_ADJUST_MODE) || funcName == (VME_SEARCH_PATH_TYPE) ||
+        funcName.starts_with(VME_HELPER_GET_HANDLE) || funcName.starts_with(VME_HELPER_GET_AS)) {
       m_hasVME = true;
     }
   }

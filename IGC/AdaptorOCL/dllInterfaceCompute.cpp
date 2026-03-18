@@ -658,12 +658,12 @@ bool ProcessElfInput(STB_TranslateInputArgs &InputArgs, STB_TranslateOutputArgs 
     }
 
     Context.getLLVMContext()->setDiagnosticHandlerCallBack(
-        [](const llvm::DiagnosticInfo &DI, void *Ptr) {
-          if (DI.getSeverity() == llvm::DS_Error) {
+        [](const llvm::DiagnosticInfo *DI, void *Ptr) {
+          if (DI && DI->getSeverity() == llvm::DS_Error) {
             auto *S = static_cast<std::string *>(Ptr);
             llvm::raw_string_ostream OS(*S);
             llvm::DiagnosticPrinterRawOStream DP(OS);
-            DI.print(DP);
+            DI->print(DP);
             OS << '\n';
           }
         },
@@ -811,7 +811,7 @@ bool ParseInput(llvm::Module *&pKernelModule, const STB_TranslateInputArgs *pInp
 
   // IGC does not handle legacy ocl binary for now (legacy ocl binary
   // is the binary that contains text LLVM IR (2.7 or 3.0).
-  if (!strInput.startswith("BC")) {
+  if (!strInput.starts_with("BC")) {
     bool isLLVM27IR = false, isLLVM30IR = false;
 
     if (strInput.find("triple = \"GHAL3D") != llvm::StringRef::npos) {
@@ -1002,7 +1002,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
     llvm::StringRef unrollMaxUpperBoundFlag = "-unroll-max-upperbound=16";
     auto unrollMaxUpperBoundSwitch = optionsMap.find(unrollMaxUpperBoundFlag.trim("-=16"));
     if (unrollMaxUpperBoundSwitch != optionsMap.end()) {
-      if (unrollMaxUpperBoundSwitch->getValue()->getNumOccurrences() == 0) {
+      if (unrollMaxUpperBoundSwitch->second->getNumOccurrences() == 0) {
         args.push_back(unrollMaxUpperBoundFlag.data());
       }
     }
@@ -1014,7 +1014,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
     llvm::StringRef instCombineFlag = "-instcombine-code-sinking=0";
     auto instCombineSinkingSwitch = optionsMap.find(instCombineFlag.trim("-=0"));
     if (instCombineSinkingSwitch != optionsMap.end()) {
-      if (instCombineSinkingSwitch->getValue()->getNumOccurrences() == 0) {
+      if (instCombineSinkingSwitch->second->getNumOccurrences() == 0) {
         args.push_back(instCombineFlag.data());
       }
     }
@@ -1026,7 +1026,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
     llvm::StringRef licmMSSAPromotionFlag = "-licm-mssa-max-acc-promotion=500";
     auto licmMSSAPromotionSwitch = optionsMap.find(licmMSSAPromotionFlag.trim("-=500"));
     if (licmMSSAPromotionSwitch != optionsMap.end()) {
-      if (licmMSSAPromotionSwitch->getValue()->getNumOccurrences() == 0) {
+      if (licmMSSAPromotionSwitch->second->getNumOccurrences() == 0) {
         args.push_back(licmMSSAPromotionFlag.data());
       }
     }
@@ -1035,7 +1035,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
     llvm::StringRef aaQueryDepthFlag = "-basic-aa-max-query-depth=192";
     auto aaQueryDepthSwitch = optionsMap.find(aaQueryDepthFlag.trim("-=192"));
     if (aaQueryDepthSwitch != optionsMap.end()) {
-      if (aaQueryDepthSwitch->getValue()->getNumOccurrences() == 0) {
+      if (aaQueryDepthSwitch->second->getNumOccurrences() == 0) {
         args.push_back(aaQueryDepthFlag.data());
       }
     }
@@ -1043,7 +1043,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
     llvm::StringRef dsePartialOverwriteTrackingFlag = "-enable-dse-partial-overwrite-tracking=1";
     auto dsePartialOverwriteTrackingSwitch = optionsMap.find(dsePartialOverwriteTrackingFlag.trim("-=1"));
     if (dsePartialOverwriteTrackingSwitch != optionsMap.end()) {
-      if (dsePartialOverwriteTrackingSwitch->getValue()->getNumOccurrences() == 0) {
+      if (dsePartialOverwriteTrackingSwitch->second->getNumOccurrences() == 0) {
         args.push_back(dsePartialOverwriteTrackingFlag.data());
       }
     }
@@ -1051,7 +1051,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
     llvm::StringRef dseMSSAStepLimitFlag = "-dse-memoryssa-walklimit=150";
     auto dseMSSAStepLimitSwitch = optionsMap.find(dseMSSAStepLimitFlag.trim("-=150"));
     if (dseMSSAStepLimitSwitch != optionsMap.end()) {
-      if (dseMSSAStepLimitSwitch->getValue()->getNumOccurrences() == 0) {
+      if (dseMSSAStepLimitSwitch->second->getNumOccurrences() == 0) {
         args.push_back(dseMSSAStepLimitFlag.data());
       }
     }
@@ -1063,7 +1063,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
     for (const auto indVarSimplifyFlag : indVarSimplifyFlags) {
       auto indVarSimplifySwitch = optionsMap.find(indVarSimplifyFlag.drop_front(1).split("=").first);
       if (indVarSimplifySwitch != optionsMap.end()) {
-        if (indVarSimplifySwitch->getValue()->getNumOccurrences() == 0) {
+        if (indVarSimplifySwitch->second->getNumOccurrences() == 0) {
           args.push_back(indVarSimplifyFlag.data());
         }
       }
@@ -1257,7 +1257,7 @@ bool TranslateBuildSPMD(const STB_TranslateInputArgs *pInputArgs, STB_TranslateO
       oclContext.getModuleMetaData()->csInfo.forcedSIMDSize |= IGC_GET_FLAG_VALUE(ForceOCLSIMDWidth);
 
       try {
-        if (llvm::StringRef(oclContext.getModule()->getTargetTriple().str()).startswith("spir")) {
+        if (llvm::StringRef(oclContext.getModule()->getTargetTriple().str()).starts_with("spir")) {
           IGC::UnifyIRSPIR(&oclContext);
         } else // not SPIR
         {

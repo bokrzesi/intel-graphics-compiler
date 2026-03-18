@@ -232,8 +232,7 @@ bool InstPromoter::visitLoadInst(LoadInst &I) {
 
   Type *PromotedTy = TySeq->front();
 
-  auto &DL = I.getModule()->getDataLayout();
-  Value *NewBasePtr = IRB->CreatePointerCast(OldPtr, IRB->getInt8PtrTy(DL, AS), Twine(OldPtr->getName(), ".ptrcast"));
+  Value *NewBasePtr = IRB->CreatePointerCast(OldPtr, IRB->getPtrTy(AS), Twine(OldPtr->getName(), ".ptrcast"));
 
   // Different from promotion of regular instructions, such as 'add', promotion
   // of load is required to split the original load into small ones and
@@ -308,8 +307,7 @@ bool InstPromoter::visitStoreInst(StoreInst &I) {
 
   Value *PromotedVal = ValSeq->front();
 
-  auto &DL = I.getModule()->getDataLayout();
-  Value *NewBasePtr = IRB->CreatePointerCast(OldPtr, IRB->getInt8PtrTy(DL, AS), Twine(OldPtr->getName(), ".ptrcast"));
+  Value *NewBasePtr = IRB->CreatePointerCast(OldPtr, IRB->getPtrTy(AS), Twine(OldPtr->getName(), ".ptrcast"));
 
   unsigned Off = 0;
   for (unsigned TotalStoreBits = TL->getTypeStoreSizeInBits(OrigTy), ActualStoreBits = 0; TotalStoreBits != 0;
@@ -641,7 +639,7 @@ std::pair<Value *, Type *> InstPromoter::preparePromotedIntrinsicInst(IntrinsicI
     IGC_ASSERT(PromotedBitWidth == ValBitWidth);
   }
 
-  Function *Func = Intrinsic::getDeclaration(I.getModule(), I.getIntrinsicID(), PromotedTy);
+  Function *Func = Intrinsic::getOrInsertDeclaration(I.getModule(), I.getIntrinsicID(), PromotedTy);
   return {IRB->CreateCall(Func, PromotedArgs), PromotedTy};
 }
 

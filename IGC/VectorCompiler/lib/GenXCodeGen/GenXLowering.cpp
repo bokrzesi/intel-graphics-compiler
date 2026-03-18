@@ -4668,7 +4668,7 @@ bool GenXLowering::lowerFunnelShift(CallInst *CI, unsigned IntrinsicID) {
 
 bool GenXLowering::lowerFMulAdd(CallInst *CI) {
   IGC_ASSERT(CI);
-  auto *Decl = Intrinsic::getDeclaration(CI->getModule(), Intrinsic::fma,
+  auto *Decl = Intrinsic::getOrInsertDeclaration(CI->getModule(), Intrinsic::fma,
                                          {CI->getType()});
   SmallVector<Value *, 3> Args{CI->args()};
   auto *FMA = CallInst::Create(Decl, Args, CI->getName(), CI);
@@ -4684,7 +4684,7 @@ bool GenXLowering::lowerPowI(CallInst *CI) {
   IRBuilder<> IRB{CI};
   auto *CITy = CI->getType();
   auto *Decl =
-      Intrinsic::getDeclaration(CI->getModule(), Intrinsic::pow, {CITy});
+      Intrinsic::getOrInsertDeclaration(CI->getModule(), Intrinsic::pow, {CITy});
   auto *Operand = CI->getOperand(1);
   // For pow @llvm.powi.v*.i*(< x > , i32 ) cases
   if (auto *CIVTy = dyn_cast<IGCLLVM::FixedVectorType>(CITy);

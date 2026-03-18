@@ -210,8 +210,8 @@ bool FPRoundingModeCoalescingImpl::setsRoundingMode(Instruction &ToMove) {
 
 bool FPRoundingModeCoalescingImpl::checkMoveThreshold(Instruction &ToMove, Instruction *InsertPoint) {
   unsigned Dist = 1;
-  for (Instruction *I = ToMove.getNextNonDebugInstruction(); I != InsertPoint;
-       I = I->getNextNonDebugInstruction(), ++Dist) {
+  for (Instruction *I = ToMove.getNextNode(); I != InsertPoint;
+       I = I->getNextNode(), ++Dist) {
     if (Dist >= IGC_GET_FLAG_VALUE(FPRoundingModeCoalescingMaxDistance))
       return false;
   }
@@ -277,8 +277,10 @@ bool FPRoundingModeCoalescingImpl::tryMove(Instruction &ToMove, FPRoundingModeGr
   // Next, find first instruction before group switching RM that is NOT an user
   // of instruction to move. This will be an insert point.
   Instruction *InsertPoint = nullptr;
-  for (Instruction *I = Group.getHead()->getPrevNonDebugInstruction(); I != &ToMove;
-       I = I->getPrevNonDebugInstruction()) {
+  for (Instruction *I = Group.getHead()->getPrevNode(); I != nullptr && I != &ToMove; I = I->getPrevNode()) {
+    if (I->isDebugOrPseudoInst()) {
+      continue;
+    }
     if (!ignoresRoundingMode(I) && Users.count(I) == 0) {
       InsertPoint = I;
       break;

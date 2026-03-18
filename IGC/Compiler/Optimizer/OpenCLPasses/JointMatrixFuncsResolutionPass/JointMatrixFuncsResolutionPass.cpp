@@ -109,8 +109,8 @@ static bool isMatrixType(const Type *type) {
     name = eltType->getStructName();
   }
 
-  if (name.startswith("intel.joint_matrix") || name.startswith("spirv.JointMatrixINTEL") ||
-      name.startswith("spirv.CooperativeMatrixKHR"))
+  if (name.starts_with("intel.joint_matrix") || name.starts_with("spirv.JointMatrixINTEL") ||
+      name.starts_with("spirv.CooperativeMatrixKHR"))
     return true;
 
   return false;
@@ -953,13 +953,13 @@ bool JointMatrixFuncsResolutionPass::parseMatrixTypeNameLegacy(const Type *opaqu
   StringRef name = IGCLLVM::getNonOpaquePtrEltTy(ptrType)->getStructName();
 
   unsigned offset = 0;
-  if (name.startswith("intel.joint_matrix_packedA_")) {
+  if (name.starts_with("intel.joint_matrix_packedA_")) {
     outDescription->layout = LayoutPackedA;
     offset += sizeof "intel.joint_matrix_packedA_";
-  } else if (name.startswith("intel.joint_matrix_packedB_")) {
+  } else if (name.starts_with("intel.joint_matrix_packedB_")) {
     outDescription->layout = LayoutPackedB;
     offset += sizeof "intel.joint_matrix_packedB_";
-  } else if (name.startswith("intel.joint_matrix_acc_")) {
+  } else if (name.starts_with("intel.joint_matrix_acc_")) {
     outDescription->layout = LayoutRowMajor;
     offset += sizeof "intel.joint_matrix_acc_";
   } else {
@@ -1002,7 +1002,7 @@ bool JointMatrixFuncsResolutionPass::parseMatrixTypeNameLegacy(const Type *opaqu
 bool JointMatrixFuncsResolutionPass::ParseMatrixTypeName(Type *opaqueType, JointMatrixTypeDescription *outDescription) {
   StringRef name = GetMatrixTypeName(opaqueType);
 
-  if (name.startswith("intel.joint_matrix")) {
+  if (name.starts_with("intel.joint_matrix")) {
     return parseMatrixTypeNameLegacy(opaqueType, outDescription);
   }
 
@@ -2810,14 +2810,14 @@ void JointMatrixFuncsResolutionPass::visitCallInst(CallInst &CI) {
    * future when returning and passing matrices by argument is
    * supported also basic block terminators should be used as
    * transformation starting point */
-  if (funcName.startswith(JointMatrixBIPrefix) || funcName.contains(JointMatrixBISuffix) ||
+  if (funcName.starts_with(JointMatrixBIPrefix) || funcName.contains(JointMatrixBISuffix) ||
       funcName.contains(CooperativeMatrixBISuffix)) {
     ResolveSIMDSize(CI.getParent()->getParent());
     ResolveCall(&CI);
     return;
   }
 
-  if (funcName.startswith("_Z") &&
+  if (funcName.starts_with("_Z") &&
       (funcName.contains("__spirv_JointMatrix") || funcName.contains("__spirv_CooperativeMatrix") ||
        funcName.contains(JointMatrixFillPrefx))) {
     ResolveSIMDSize(CI.getParent()->getParent());

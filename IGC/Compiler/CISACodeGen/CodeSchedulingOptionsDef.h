@@ -13,7 +13,7 @@ SPDX-License-Identifier: MIT
 
 // Generate default options line:
 // clang-format off
-// python3 -c "print('IGC_CodeSchedulingConfig=\"' + ';'.join([line.split(',')[1].strip() for line in open('CodeSchedulingOptionsDef.h') if line.strip().startswith('DECLARE_SCHEDULING_OPTION')]) + '\"')"
+// python3 -c "print('IGC_CodeSchedulingConfig=\"' + ';'.join([line.split(',')[1].strip() for line in open('CodeSchedulingOptionsDef.h') if line.strip().starts_with('DECLARE_SCHEDULING_OPTION')]) + '\"')"
 // clang-format on
 
 // Edge weights

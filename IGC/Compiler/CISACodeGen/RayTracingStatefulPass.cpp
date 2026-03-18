@@ -73,8 +73,7 @@ static StoreInst *legalizeStore(StoreInst *SI) {
   PointerType *ptrTy = cast<PointerType>(SI->getPointerOperand()->getType());
   unsigned addressSpace = ptrTy->getAddressSpace();
 
-  auto &DL = SI->getModule()->getDataLayout();
-  auto I8PtrTy = IRB.getInt8PtrTy(DL, addressSpace);
+  auto I8PtrTy = IRB.getPtrTy(addressSpace);
   Value *I8PtrOp = IRB.CreateBitCast(SI->getPointerOperand(), I8PtrTy);
 
   auto *NewSI = IGC::cloneStore(SI, newVal, I8PtrOp);

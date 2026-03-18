@@ -76,25 +76,42 @@ bool ProcessBICodeAssumption::runOnFunction(Function &F) {
 
 void ProcessBICodeAssumption::visitCallInst(CallInst &CI) {
 
-  Instruction *I = nullptr;
-  ICmpInst::Predicate Pred;
-  ConstantInt *Const = nullptr;
-
-  // Look for assume:
-  //   %9 = icmp ult i64 %8, 2147483648
-  //   call void @llvm.assume(i1 %9)
-  if (!match(&CI, m_Intrinsic<Intrinsic::assume>(m_ICmp(Pred, m_Instruction(I), m_ConstantInt(Const)))))
-    return;
-
-  if (!matchCmp(Pred, Const))
-    return;
-
-  if (matchBuiltin(I)) {
-    ToTruncate.insert(I);
+  // Check if this is an assume intrinsic
+  if (!isa<IntrinsicInst>(&CI) ||
+      cast<IntrinsicInst>(&CI)->getIntrinsicID() != Intrinsic::assume) {
     return;
   }
 
-  matchVectorPattern(I);
+  // Try to extract icmp from assume operand
+  Value *AssumeOp = CI.getArgOperand(0);
+  if (auto *ICmp = dyn_cast<ICmpInst>(AssumeOp)) {
+    Instruction *I = nullptr;
+    ICmpInst::Predicate Pred = ICmp->getPredicate();
+    ConstantInt *Const = nullptr;
+
+    if (auto C = dyn_cast<ConstantInt>(ICmp->getOperand(1))) {
+      I = dyn_cast<Instruction>(ICmp->getOperand(0));
+      Const = C;
+    } else if (auto C = dyn_cast<ConstantInt>(ICmp->getOperand(0))) {
+      I = dyn_cast<Instruction>(ICmp->getOperand(1));
+      Const = C;
+      // For operand order, we need to flip the predicate
+      Pred = ICmpInst::getSwappedPredicate(Pred);
+    }
+
+    if (!I || !Const)
+      return;
+
+    if (!matchCmp(Pred, Const))
+      return;
+
+    if (matchBuiltin(I)) {
+      ToTruncate.insert(I);
+      return;
+    }
+
+    matchVectorPattern(I);
+  }
 }
 
 // Look for pattern with insertelement/extractelement:

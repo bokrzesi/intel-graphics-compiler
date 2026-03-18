@@ -145,7 +145,7 @@ std::string MangledNameForDemangling = MangledName.str();
     StringRef DemangledNameRef = DemangledName;
     bool IsSupported = false;
     for (const auto &funcName : FuncNames) {
-      if (DemangledNameRef.equals(funcName)) {
+      if (DemangledNameRef == (funcName)) {
         IsSupported = true;
         break;
       }

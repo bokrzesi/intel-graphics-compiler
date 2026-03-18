@@ -200,7 +200,7 @@ bool GenXLowerJmpTableSwitch::processSwitchCandidates(
     // NumCases times to create internal_jump_table decl.
     std::vector<Type *> InTys(NumCases + 2, BAs[0]->getType());
     // Return type
-    InTys[0] = Builder.getInt8PtrTy();
+    InTys[0] = Builder.getPtrTy();
     // Index in jump table. Only this arg will be really needed.
     InTys[1] = JTIdx->getType();
     Function *JTDecl = vc::InternalIntrinsic::getInternalDeclaration(

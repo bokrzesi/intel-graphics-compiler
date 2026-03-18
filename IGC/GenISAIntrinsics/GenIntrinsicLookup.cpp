@@ -14,7 +14,7 @@ namespace IGC {
 
 llvm::GenISAIntrinsic::ID LookupIntrinsicId(llvm::StringRef GenISAprefix, llvm::StringRef Name) {
 
-  if (!Name.startswith(GenISAprefix))
+  if (!Name.starts_with(GenISAprefix))
     return llvm::GenISAIntrinsic::ID::no_intrinsic;
 
   static auto LengthTable = GetIntrinsicLookupTable();

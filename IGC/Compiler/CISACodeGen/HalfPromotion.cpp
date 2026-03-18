@@ -60,7 +60,7 @@ void IGC::HalfPromotion::handleLLVMIntrinsic(llvm::IntrinsicInst &I) {
     llvm::IGCIRBuilder<> builder(&I);
     std::vector<llvm::Value *> arguments;
 
-    Function *pNewFunc = Intrinsic::getDeclaration(M, I.getIntrinsicID(), builder.getFloatTy());
+    Function *pNewFunc = Intrinsic::getOrInsertDeclaration(M, I.getIntrinsicID(), builder.getFloatTy());
 
     for (unsigned i = 0; i < IGCLLVM::getNumArgOperands(&I); ++i) {
       if (I.getOperand(i)->getType()->isHalfTy()) {

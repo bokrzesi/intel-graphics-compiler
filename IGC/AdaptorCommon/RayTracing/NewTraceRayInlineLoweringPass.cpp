@@ -87,7 +87,7 @@ bool InlineRaytracing::LowerAllocations(Function &F) {
   auto *getRQHandleFromRQObjectFn = m_Functions[GET_RQ_HANDLE_FROM_RQ_OJECT] = Function::Create(
       getRQHandleFromRQObjectFnTy, GlobalValue::PrivateLinkage, VALUE_NAME("getRQHandleFromRQObjectFn"), F.getParent());
 
-  getStackPointerFn->addParamAttr(0, llvm::Attribute::NoCapture);
+  // getStackPointerFn->addParamAttr(0, llvm::Attribute::get(IRB.getContext(), llvm::Attribute::NoCapture));  // LLVM 22 attribute API changed
 
   // allocate rayquery instructions return i32 handle
   // we want all rayqueries to be represent via our struct
@@ -504,7 +504,7 @@ void InlineRaytracing::LowerIntrinsics(Function &F) {
       CallInst *traceRay = IRB.createSyncTraceRay(bvhLevel, traceRayCtrl, globalBufferPtr);
 
       // add this for liveness analysis
-      traceRay->addParamAttr(0, llvm::Attribute::NoCapture);
+      // traceRay->addParamAttr(0, llvm::Attribute::get(IRB.getContext(), llvm::Attribute::NoCapture));  // LLVM 22 attribute API changed
 
       IRB.createReadSyncTraceRay(traceRay);
 

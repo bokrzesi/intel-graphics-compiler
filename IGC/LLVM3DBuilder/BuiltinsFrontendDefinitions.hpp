@@ -2156,7 +2156,7 @@ inline SampleD_DC_FromCubeParams LLVM3DBuilder<T, Inserter>::Prepare_SAMPLE_D_DC
 template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>::CreateFAbs(llvm::Value *V) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *fabs = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::fabs, V->getType());
+  llvm::Function *fabs = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::fabs, V->getType());
   return this->CreateCall(fabs, V);
 }
 
@@ -2326,21 +2326,21 @@ template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>
 template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>::CreateSin(llvm::Value *V) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *sin = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::sin, V->getType());
+  llvm::Function *sin = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::sin, V->getType());
   return this->CreateCall(sin, V);
 }
 
 template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>::CreateCos(llvm::Value *V) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *cos = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::cos, V->getType());
+  llvm::Function *cos = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::cos, V->getType());
   return this->CreateCall(cos, V);
 }
 
 template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>::CreateSqrt(llvm::Value *V) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *sqrt = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::sqrt, V->getType());
+  llvm::Function *sqrt = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::sqrt, V->getType());
   return this->CreateCall(sqrt, V);
 }
 
@@ -2348,7 +2348,7 @@ template <typename T, typename Inserter>
 llvm::Value *LLVM3DBuilder<T, Inserter>::CreateFPow(llvm::Value *LHS, llvm::Value *RHS) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *fpow = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::pow, LHS->getType());
+  llvm::Function *fpow = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::pow, LHS->getType());
   return this->CreateCall2(fpow, LHS, RHS);
 }
 
@@ -2356,7 +2356,7 @@ template <typename T, typename Inserter>
 llvm::Value *LLVM3DBuilder<T, Inserter>::CreateFMax(llvm::Value *LHS, llvm::Value *RHS) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *fmax = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::maxnum, LHS->getType());
+  llvm::Function *fmax = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::maxnum, LHS->getType());
   return this->CreateCall2(fmax, LHS, RHS);
 }
 
@@ -2364,7 +2364,7 @@ template <typename T, typename Inserter>
 llvm::Value *LLVM3DBuilder<T, Inserter>::CreateFMin(llvm::Value *LHS, llvm::Value *RHS) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *fmin = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::minnum, LHS->getType());
+  llvm::Function *fmin = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::minnum, LHS->getType());
   return this->CreateCall2(fmin, LHS, RHS);
 }
 
@@ -2396,14 +2396,14 @@ template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>
 template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>::CreateFLog(llvm::Value *V) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *flog = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::log2, V->getType());
+  llvm::Function *flog = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::log2, V->getType());
   return this->CreateCall(flog, V);
 }
 
 template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>::CreateFExp(llvm::Value *V) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *fexp = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::exp2, V->getType());
+  llvm::Function *fexp = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::exp2, V->getType());
   return this->CreateCall(fexp, V);
 }
 
@@ -2484,7 +2484,7 @@ template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>
   if (V->getType() == this->getDoubleTy()) {
     return CreateDFloor(V);
   } else {
-    llvm::Function *floor = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::floor, V->getType());
+    llvm::Function *floor = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::floor, V->getType());
     return this->CreateCall(floor, V);
   }
 }
@@ -2568,7 +2568,7 @@ template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>
   if (V->getType() == this->getDoubleTy()) {
     return CreateDCeil(V);
   } else {
-    llvm::Function *ceil = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::ceil, V->getType());
+    llvm::Function *ceil = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::ceil, V->getType());
     return this->CreateCall(ceil, V);
   }
 }
@@ -2640,7 +2640,7 @@ template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>
   if (V->getType() == this->getDoubleTy()) {
     return CreateDTrunc(V);
   } else {
-    llvm::Function *trunc = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::trunc, V->getType());
+    llvm::Function *trunc = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::trunc, V->getType());
     return this->CreateCall(trunc, V);
   }
 }
@@ -2754,7 +2754,7 @@ template <typename T, typename Inserter> inline llvm::Value *LLVM3DBuilder<T, In
 template <typename T, typename Inserter> llvm::Value *LLVM3DBuilder<T, Inserter>::CreateCtpop(llvm::Value *V) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
 
-  llvm::Function *ctpop = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::ctpop, V->getType());
+  llvm::Function *ctpop = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::ctpop, V->getType());
   return this->CreateCall(ctpop, V);
 }
 
@@ -2820,7 +2820,7 @@ llvm::Value *LLVM3DBuilder<T, Inserter>::Create_MAD_Scalar(llvm::Value *float_sr
                       float_src2->getType() == this->getFloatTy() || float_src2->getType() == this->getDoubleTy()),
                      "Type check @MAD.scalar arg: 2");
 
-  llvm::Function *madFunc = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::fma, float_src0->getType());
+  llvm::Function *madFunc = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::fma, float_src0->getType());
   llvm::Value *args[] = {float_src0, float_src1, float_src2};
   llvm::Value *float_madres_s = this->CreateCall(madFunc, args);
 
@@ -2830,7 +2830,7 @@ llvm::Value *LLVM3DBuilder<T, Inserter>::Create_MAD_Scalar(llvm::Value *float_sr
 template <typename T, typename Inserter>
 llvm::Value *LLVM3DBuilder<T, Inserter>::CreatePow(llvm::Value *src0, llvm::Value *src1) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
-  llvm::Function *powFunc = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::pow, src0->getType());
+  llvm::Function *powFunc = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::pow, src0->getType());
   llvm::Value *args[] = {src0, src1};
   llvm::Value *powres_s = this->CreateCall(powFunc, args);
 
@@ -3028,7 +3028,7 @@ template <typename T, typename Inserter> inline llvm::Value *LLVM3DBuilder<T, In
 template <typename T, typename Inserter>
 inline llvm::CallInst *LLVM3DBuilder<T, Inserter>::create_countbits(llvm::Value *src) {
   llvm::Module *module = this->GetInsertBlock()->getParent()->getParent();
-  llvm::Function *pFunc = llvm::Intrinsic::getDeclaration(module, llvm::Intrinsic::ctpop, this->getInt32Ty());
+  llvm::Function *pFunc = llvm::Intrinsic::getOrInsertDeclaration(module, llvm::Intrinsic::ctpop, this->getInt32Ty());
   return this->CreateCall(pFunc, src);
 }
 

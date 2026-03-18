@@ -115,14 +115,14 @@ Value *PacketBuilder::ASHR(Value *LHS, uint64_t RHS, const Twine &Name,
 Value *PacketBuilder::EXP2(Value *A, const llvm::Twine &Name) {
   SmallVector<Type *, 1> Args;
   Args.push_back(A->getType());
-  auto *Decl = Intrinsic::getDeclaration(M, Intrinsic::exp2, Args);
+  auto *Decl = Intrinsic::getOrInsertDeclaration(M, Intrinsic::exp2, Args);
   return CALL(Decl, std::initializer_list<Value *>{A}, Name);
 }
 
 Value *PacketBuilder::FABS(Value *A, const llvm::Twine &Name) {
   SmallVector<Type *, 1> Args;
   Args.push_back(A->getType());
-  auto *Decl = Intrinsic::getDeclaration(M, Intrinsic::fabs, Args);
+  auto *Decl = Intrinsic::getOrInsertDeclaration(M, Intrinsic::fabs, Args);
   return CALL(Decl, std::initializer_list<Value *>{A}, Name);
 }
 
@@ -203,21 +203,21 @@ Value *PacketBuilder::TRUNC(Value *V, Type *DestTy, const Twine &Name) {
 Value *PacketBuilder::VMINPS(Value *A, Value *B, const llvm::Twine &Name) {
   SmallVector<Type *, 1> Args;
   Args.push_back(A->getType());
-  auto *Decl = Intrinsic::getDeclaration(M, Intrinsic::minnum, Args);
+  auto *Decl = Intrinsic::getOrInsertDeclaration(M, Intrinsic::minnum, Args);
   return CALL(Decl, std::initializer_list<Value *>{A, B}, Name);
 }
 
 Value *PacketBuilder::VMAXPS(Value *A, Value *B, const llvm::Twine &Name) {
   SmallVector<Type *, 1> Args;
   Args.push_back(A->getType());
-  auto *Decl = Intrinsic::getDeclaration(M, Intrinsic::maxnum, Args);
+  auto *Decl = Intrinsic::getOrInsertDeclaration(M, Intrinsic::maxnum, Args);
   return CALL(Decl, std::initializer_list<Value *>{A, B}, Name);
 }
 
 Value *PacketBuilder::VSQRTPS(Value *A, const llvm::Twine &Name) {
   SmallVector<Type *, 1> Args;
   Args.push_back(A->getType());
-  auto *Decl = Intrinsic::getDeclaration(M, Intrinsic::sqrt, Args);
+  auto *Decl = Intrinsic::getOrInsertDeclaration(M, Intrinsic::sqrt, Args);
   return CALL(Decl, std::initializer_list<Value *>{A}, Name);
 }
 

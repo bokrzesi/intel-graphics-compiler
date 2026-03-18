@@ -667,7 +667,7 @@ bool MemOpt::removeRedBlockRead(GenIntrinsicInst *LeadingBlockRead, MemRefListTy
     aMI->first = BlockReadToOptimize;
   }
 
-  Builder.SetInsertPoint(BlockReadToOptimize->getNextNonDebugInstruction());
+  Builder.SetInsertPoint(BlockReadToOptimize->getNextNode());
   Value *subgroupLocalInvocationId = nullptr;
 
   // Go through the collected blockreads to replace them with shuffles
@@ -693,7 +693,7 @@ bool MemOpt::removeRedBlockRead(GenIntrinsicInst *LeadingBlockRead, MemRefListTy
 
       std::get<1>(ITuple)->first = nullptr;
       I->eraseFromParent();
-      Builder.SetInsertPoint(BlockReadToOptimize->getNextNonDebugInstruction());
+      Builder.SetInsertPoint(BlockReadToOptimize->getNextNode());
     }
   }
   aMI->first = BlockReadToOptimize;
@@ -4881,14 +4881,14 @@ bool isLayoutStructType(const StructType *StTy) {
   if (!StTy || StTy->isLiteral() || !StTy->hasName() || !StTy->isPacked())
     return false;
   StringRef stId = StTy->getName();
-  return (stId.startswith(getStructNameForSOALayout()) || stId.startswith(getStructNameForAOSLayout()));
+  return (stId.starts_with(getStructNameForSOALayout()) || stId.starts_with(getStructNameForAOSLayout()));
 }
 
 bool isLayoutStructTypeAOS(const StructType *StTy) {
   if (!StTy || StTy->isLiteral() || !StTy->hasName() || !StTy->isPacked())
     return false;
   StringRef stId = StTy->getName();
-  return stId.startswith(getStructNameForAOSLayout());
+  return stId.starts_with(getStructNameForAOSLayout());
 }
 
 bool isLayoutStructTypeSOA(const StructType *StTy) { return isLayoutStructType(StTy) && !isLayoutStructTypeAOS(StTy); }

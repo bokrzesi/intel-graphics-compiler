@@ -192,14 +192,16 @@ void FatalErrorHandler(void *user_data, const char *reason, bool gen_crash_diag)
   throw std::runtime_error("LLVM Error: " + reasonStrWrapper);
 }
 
-void ComputeFatalErrorHandler(const DiagnosticInfo &DI, void * /*Context*/) {
+void ComputeFatalErrorHandler(const DiagnosticInfo *DI, void * /*Context*/) {
+  if (!DI)
+    return;
   // Skip non-error diag.
-  if (DI.getSeverity() != DS_Error)
+  if (DI->getSeverity() != DS_Error)
     return;
   std::string MsgStorage;
   raw_string_ostream Stream(MsgStorage);
   DiagnosticPrinterRawOStream DP(Stream);
-  DI.print(DP);
+  DI->print(DP);
   Stream.flush();
 
   std::string msg;

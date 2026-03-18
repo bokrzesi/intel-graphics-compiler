@@ -165,7 +165,7 @@ MemCpyInst *ReplaceUnsupportedIntrinsics::MemMoveToMemCpy(MemMoveInst *MM) {
 
   Type *Tys[] = {Dst->getType(), Src->getType(), Size->getType()};
   auto *M = MM->getParent()->getParent()->getParent();
-  auto TheFn = Intrinsic::getDeclaration(M, Intrinsic::memcpy, Tys);
+  auto TheFn = Intrinsic::getOrInsertDeclaration(M, Intrinsic::memcpy, Tys);
 
   return cast<MemCpyInst>(MemCpyInst::Create(TheFn, args));
 }
@@ -767,7 +767,7 @@ void ReplaceUnsupportedIntrinsics::replaceMemset(IntrinsicInst *I) {
   // like e.g. struct by using GetBaseType(), but for opaque pointers
   // we also need to be able to deduce this type, so we can get this
   // from investigating instructions and then using GetBaseType().
-  Type *RawDstType = Builder.getInt8Ty(I->getModule()->getDataLayout());
+  Type *RawDstType = Builder.getInt8Ty();
   if (IGCLLVM::isPointerTy(ptrTy)) {
     if (auto *alloca = dyn_cast<AllocaInst>(Dst))
       RawDstType = alloca->getAllocatedType();

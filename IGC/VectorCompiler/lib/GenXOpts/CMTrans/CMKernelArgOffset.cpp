@@ -261,7 +261,7 @@ void CMKernelArgOffset::resolveByValArgs(Function *F) const {
         Builder.CreateAlloca(F->getParamByValType(Arg.getArgNo()), nullptr,
                              Arg.getName() + ".linearization");
 
-    Value *BaseAsI8Ptr = Builder.CreateBitCast(Base, Builder.getInt8PtrTy(),
+    Value *BaseAsI8Ptr = Builder.CreateBitCast(Base, Builder.getPtrTy(),
                                                Base->getName() + ".i8");
     for (const auto &Info : KM->arg_lin(&Arg)) {
       Value *StoreAddrUntyped =

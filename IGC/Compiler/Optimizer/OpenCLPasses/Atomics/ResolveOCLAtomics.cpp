@@ -79,7 +79,7 @@ void ResolveOCLAtomics::visitCallInst(CallInst &callInst) {
     processGetGlobalLock(callInst);
   }
 
-  if (funcName.startswith("__builtin_IB_atomic")) {
+  if (funcName.starts_with("__builtin_IB_atomic")) {
     IGC_ASSERT_MESSAGE(m_AtomicDescMap.count(funcName), "Unexpected IGC atomic function name.");
     const OCLAtomicAttrs &attrs = m_AtomicDescMap[funcName];
     processOCLAtomic(callInst, attrs.op, attrs.bufType);

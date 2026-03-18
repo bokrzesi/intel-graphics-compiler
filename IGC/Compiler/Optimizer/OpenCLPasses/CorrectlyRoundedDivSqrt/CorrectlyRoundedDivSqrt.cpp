@@ -68,13 +68,13 @@ bool CorrectlyRoundedDivSqrt::runOnModule(Module &M) {
 
 bool CorrectlyRoundedDivSqrt::processDeclaration(Function &F) {
   StringRef name = F.getName();
-  if (name.startswith("_Z4sqrt")) {
+  if (name.starts_with("_Z4sqrt")) {
     std::string newName = name.str();
     newName[2] = '7';
     newName.insert(7, "_cr");
     F.setName(newName);
     return true;
-  } else if (name.startswith("_Z16__spirv_ocl_sqrt")) {
+  } else if (name.starts_with("_Z16__spirv_ocl_sqrt")) {
     std::string newName = name.str();
     newName[3] = '9';
     newName.insert(20, "_cr");

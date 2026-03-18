@@ -538,7 +538,7 @@ bool InternalIntrinsic::isOverloadedRet(unsigned IntrinID) {
 /// Returns the relevant slice of \c IntrinsicNameTable
 static ArrayRef<const char *> findTargetSubtable(StringRef Name) {
 
-  IGC_ASSERT(Name.startswith("llvm.vc.internal."));
+  IGC_ASSERT(Name.starts_with("llvm.vc.internal."));
 
   ArrayRef<IntrinsicTargetInfo> Targets(TargetInfos);
   StringRef Target = "vc.internal";
@@ -655,7 +655,7 @@ InternalIntrinsic::ID
 InternalIntrinsic::getInternalIntrinsicID(const Function *F) {
   IGC_ASSERT_EXIT(F);
   llvm::StringRef Name = F->getName();
-  if (!Name.startswith(getInternalIntrinsicPrefix())) {
+  if (!Name.starts_with(getInternalIntrinsicPrefix())) {
     return InternalIntrinsic::not_internal_intrinsic;
   }
 
@@ -671,7 +671,7 @@ InternalIntrinsic::getInternalIntrinsicID(const Function *F) {
       const char *NamePrefix =
           InternalIntrinsicNameTable[Id -
                                      InternalIntrinsic::not_internal_intrinsic];
-      if (Name.startswith(NamePrefix))
+      if (Name.starts_with(NamePrefix))
         return Id;
     }
   }

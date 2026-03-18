@@ -3536,7 +3536,7 @@ void GenSpecificPattern::visitCastInst(CastInst &I) {
       if (isa<FPMathOperator>(srcVal) && srcVal->isFast()) {
         IRBuilder<> builder(&I);
         Function *func =
-            Intrinsic::getDeclaration(I.getParent()->getParent()->getParent(), Intrinsic::trunc, I.getType());
+            Intrinsic::getOrInsertDeclaration(I.getParent()->getParent()->getParent(), Intrinsic::trunc, I.getType());
         Value *newVal = builder.CreateCall(func, srcVal);
         I.replaceAllUsesWith(newVal);
         I.eraseFromParent();
@@ -6006,7 +6006,7 @@ void LogicalAndToBranch::convertAndToBranch(Instruction *opAnd, Instruction *con
   BasicBlock *bb = opAnd->getParent();
   BasicBlock *bbThen, *bbElse, *bbEnd;
 
-  Instruction *splitBefore = cond0->getNextNonDebugInstruction();
+  Instruction *splitBefore = cond0->getNextNode();
   bbThen = bb->splitBasicBlock(splitBefore->getIterator(), "if.then");
   bbElse = bbThen->splitBasicBlock(opAnd, "if.else");
   bbEnd = bbElse->splitBasicBlock(opAnd, "if.end");

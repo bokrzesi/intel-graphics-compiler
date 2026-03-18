@@ -140,14 +140,14 @@ StringRef vc::getConstStringFromOperand(const Value &Op) {
 // \p IsSigned, defines which particular integer type is provided.
 static PrintfArgInfo parseIntLengthModifier(StringRef ArgDesc, bool IsSigned) {
   std::string Suffix{1u, ArgDesc.back()};
-  if (ArgDesc.endswith("hh" + Suffix))
+  if (ArgDesc.ends_with("hh" + Suffix))
     return {PrintfArgInfo::Char, IsSigned};
-  if (ArgDesc.endswith("h" + Suffix))
+  if (ArgDesc.ends_with("h" + Suffix))
     return {PrintfArgInfo::Short, IsSigned};
-  if (ArgDesc.endswith("ll" + Suffix))
+  if (ArgDesc.ends_with("ll" + Suffix))
     // TOTHINK: maybe we need a separate type ID for long long.
     return {PrintfArgInfo::Long, IsSigned};
-  if (ArgDesc.endswith("l" + Suffix))
+  if (ArgDesc.ends_with("l" + Suffix))
     return {PrintfArgInfo::Long, IsSigned};
   return {PrintfArgInfo::Int, IsSigned};
 }
@@ -155,15 +155,15 @@ static PrintfArgInfo parseIntLengthModifier(StringRef ArgDesc, bool IsSigned) {
 // \p ArgDesc is a format string conversion specifier matched by a regex
 // (some string that starts with % and ends with d,i,f,...).
 static PrintfArgInfo parseArgDesc(StringRef ArgDesc) {
-  if (ArgDesc.endswith("c"))
+  if (ArgDesc.ends_with("c"))
     // FIXME: support %lc
     return {PrintfArgInfo::Int, /* IsSigned */ true};
-  if (ArgDesc.endswith("s"))
+  if (ArgDesc.ends_with("s"))
     // FIXME: support %ls
     return {PrintfArgInfo::String, /* IsSigned */ false};
-  if (ArgDesc.endswith("d") || ArgDesc.endswith("i"))
+  if (ArgDesc.ends_with("d") || ArgDesc.ends_with("i"))
     return parseIntLengthModifier(ArgDesc, /* IsSigned */ true);
-  if (ArgDesc.endswith("o") || ArgDesc.endswith("u") ||
+  if (ArgDesc.ends_with("o") || ArgDesc.ends_with("u") ||
       IGCLLVM::ends_with_insensitive(ArgDesc, "x"))
     return parseIntLengthModifier(ArgDesc, /* IsSigned */ false);
   if (IGCLLVM::ends_with_insensitive(ArgDesc, "f") ||
@@ -171,7 +171,7 @@ static PrintfArgInfo parseArgDesc(StringRef ArgDesc) {
       IGCLLVM::ends_with_insensitive(ArgDesc, "a") ||
       IGCLLVM::ends_with_insensitive(ArgDesc, "g"))
     return {PrintfArgInfo::Double, /* IsSigned */ true};
-  IGC_ASSERT_MESSAGE(ArgDesc.endswith("p"), "unexpected conversion specifier");
+  IGC_ASSERT_MESSAGE(ArgDesc.ends_with("p"), "unexpected conversion specifier");
   return {PrintfArgInfo::Pointer, /* IsSigned */ false};
 }
 

@@ -2532,7 +2532,7 @@ std::tuple<std::string, std::string, unsigned> ParseVectorVariantFunctionString(
   auto strEnd = varStr.end();
 
   // Starts with _ZGV
-  IGC_ASSERT(varStr.startswith("_ZGV"));
+  IGC_ASSERT(varStr.starts_with("_ZGV"));
   outStr << "_ZGV";
   pos += 4;
   // ISA class target processor type

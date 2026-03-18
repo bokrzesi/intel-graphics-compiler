@@ -129,7 +129,7 @@ public:
   /// \brief Only one function in this group ignoring stack overflow detection methods
   bool isSingleIgnoringStackOverflowDetection() const {
     auto isNotStackOverflowDetection = [](const llvm::Function *F) {
-      return !F->getName().startswith("__stackoverflow_detection") && !F->getName().startswith("__stackoverflow_init");
+      return !F->getName().starts_with("__stackoverflow_detection") && !F->getName().starts_with("__stackoverflow_init");
     };
     return (Functions.size() == 1 &&
             std::count_if(Functions.front()->begin(), Functions.front()->end(), isNotStackOverflowDetection) == 1);

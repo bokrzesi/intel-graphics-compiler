@@ -820,7 +820,7 @@ bool RTGlobalsPointerLoweringPass::runOnFunction(Function &F) {
       uint32_t Addrspace = rtGlobalsPtr->getType()->getPointerAddressSpace();
       auto *LaneId = builder.get32BitLaneID();
       auto *Cond = builder.CreateICmpULT(LaneId, builder.getInt32(numLanes(SIMDMode::SIMD16)));
-      auto *Ptr = builder.CreateBitCast(rtGlobalsPtr, builder.getInt8PtrTy(Addrspace));
+      auto *Ptr = builder.CreateBitCast(rtGlobalsPtr, builder.getPtrTy(Addrspace));
       // UMD will allocate back-to-back RTGlobals if requested. The upper
       // 16 lanes will get the pointer to the second one.
        // We need at least 64-byte alignment. Let's just align both

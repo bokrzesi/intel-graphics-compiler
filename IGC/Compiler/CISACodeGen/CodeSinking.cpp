@@ -64,7 +64,7 @@ static void ProcessDbgValueInst(BasicBlock &blk, DominatorTree *DT) {
               PositionMap[inst] = &*def->getParent()->getFirstInsertionPt();
             } else {
               // Otherwise, insert the new instruction after the defining instruction.
-              PositionMap[inst] = def->getNextNonDebugInstruction();
+              PositionMap[inst] = def->getNextNode();
               IGC_ASSERT(!isa<BranchInst>(def));
             }
           }

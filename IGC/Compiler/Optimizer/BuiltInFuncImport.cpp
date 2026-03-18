@@ -185,7 +185,7 @@ static bool isMangledImageFn(StringRef FName, const MangleSubstTy &MangleSubst) 
   bool UpdateMangle = std::any_of(MangleSubst.begin(), MangleSubst.end(),
                                   [=](PairTy Pair) { return FName.find(Pair.first) != StringRef::npos; });
 
-  return (FName.startswith("_Z") && UpdateMangle);
+  return (FName.starts_with("_Z") && UpdateMangle);
 }
 
 static std::string updatedMangleName(const std::string &FuncName, const std::string &Mangle) {
@@ -424,8 +424,8 @@ void BIImport::fixSPIRFunctionsReturnType(Module &M) {
     if (F.isDeclaration()) {
       auto FuncName = F.getName();
 
-      if (FuncName.equals("intel_is_traversal_done") || FuncName.equals("intel_get_hit_front_face") ||
-          FuncName.equals("intel_has_committed_hit")) {
+      if (FuncName == ("intel_is_traversal_done") || FuncName == ("intel_get_hit_front_face") ||
+          FuncName == ("intel_has_committed_hit")) {
         if (!F.getReturnType()->isIntegerTy(8))
           continue;
 
@@ -476,7 +476,7 @@ void BIImport::fixSPIRFunctionsReturnType(Module &M) {
 // bitcast must be replaced with bitcast + addrspacecast.
 void BIImport::fixInvalidBitcasts(llvm::Module &M) {
   for (auto &F : M) {
-    if (!F.getName().startswith("__builtin"))
+    if (!F.getName().starts_with("__builtin"))
       continue;
 
     // Collect invalid bitcasts with address space change.
@@ -639,14 +639,14 @@ bool BIImport::runOnModule(Module &M) {
   // temporary work around for sampler types and pipes
   for (auto &func : M) {
     auto funcName = func.getName();
-    if (funcName.startswith("__builtin_IB_convert_sampler_to_int") ||
-        funcName.startswith("__builtin_IB_convert_pipe_ro_to_intel_pipe") ||
-        funcName.startswith("__builtin_IB_convert_pipe_wo_to_intel_pipe")) {
+    if (funcName.starts_with("__builtin_IB_convert_sampler_to_int") ||
+        funcName.starts_with("__builtin_IB_convert_pipe_ro_to_intel_pipe") ||
+        funcName.starts_with("__builtin_IB_convert_pipe_wo_to_intel_pipe")) {
       for (auto Users : func.users()) {
         if (auto CI = dyn_cast<CallInst>(Users)) {
           IRBuilder<> builder(CI);
           Value *newV;
-          if (funcName.startswith("__builtin_IB_convert_sampler_to_int")) {
+          if (funcName.starts_with("__builtin_IB_convert_sampler_to_int")) {
             newV = builder.CreatePtrToInt(CI->getOperand(0), CI->getType());
           } else
             newV = builder.CreateBitOrPointerCast(CI->getOperand(0), CI->getType());
@@ -662,7 +662,7 @@ bool BIImport::runOnModule(Module &M) {
     auto funcName = F.getName();
     // Builtin for OCL support for function pointers
     // Gets the function address
-    if (funcName.startswith("__builtin_IB_get_function_pointer")) {
+    if (funcName.starts_with("__builtin_IB_get_function_pointer")) {
       for (auto user : F.users()) {
         if (CallInst *CI = dyn_cast<CallInst>(&*user)) {
           // Strip if CI->getArgOperand(0) is ConstExpr bitcast which happens when
@@ -692,7 +692,7 @@ bool BIImport::runOnModule(Module &M) {
     }
     // Builtin for OCL support for function pointers
     // Calls a function address
-    else if (funcName.startswith("__builtin_IB_call_function_pointer")) {
+    else if (funcName.starts_with("__builtin_IB_call_function_pointer")) {
       for (auto user : F.users()) {
         if (CallInst *CI = dyn_cast<CallInst>(&*user)) {
           IGCLLVM::IRBuilder<> builder(CI);
@@ -710,7 +710,7 @@ bool BIImport::runOnModule(Module &M) {
     }
 
     // Handles the function pointer SIMD variant functions
-    else if (funcName.startswith("__intel_create_simd_variant")) {
+    else if (funcName.starts_with("__intel_create_simd_variant")) {
       // If we encounter this call, we need to enable this flag to indicate we need to compile multiple SIMD
       auto pCtx = getAnalysis<CodeGenContextWrapper>().getCodeGenContext();
       pCtx->m_enableSimdVariantCompilation = true;
@@ -749,7 +749,7 @@ bool BIImport::runOnModule(Module &M) {
     // FIXME: This is a temp solution, eventually if we support argument variants etc, it's unlikely
     // we will have all the information for the variant index in this pass, and will have to move it
     // to later passes. For now, since we only require subgroup size, this should suffice.
-    else if (funcName.startswith("__intel_indirect_call")) {
+    else if (funcName.starts_with("__intel_indirect_call")) {
       MetaDataUtils *pMdUtils = getAnalysis<MetaDataUtilsWrapper>().getMetaDataUtils();
       for (auto user : F.users()) {
         if (CallInst *CI = dyn_cast<CallInst>(&*user)) {
@@ -1155,8 +1155,8 @@ bool PreBIImportAnalysis::runOnModule(Module &M) {
         for (; instUse != instEnd; ++instUse) {
           if (CallInst *useInst = dyn_cast<CallInst>(instUse->getUser())) {
             StringRef funcName = useInst->getCalledFunction()->getName();
-            if (!funcName.startswith(cosBuiltinName) && !funcName.startswith(sinBuiltinName) &&
-                !funcName.startswith(sinPiBuiltinName) && !funcName.startswith(cosPiBuiltinName)) {
+            if (!funcName.starts_with(cosBuiltinName) && !funcName.starts_with(sinBuiltinName) &&
+                !funcName.starts_with(sinPiBuiltinName) && !funcName.starts_with(cosPiBuiltinName)) {
               return true;
             }
           } else
@@ -1168,7 +1168,7 @@ bool PreBIImportAnalysis::runOnModule(Module &M) {
 
     auto modMD = getAnalysis<MetaDataUtilsWrapper>().getModuleMetaData();
     if ((modMD->compOpt.MatchSinCosPi) && !(modMD->compOpt.FastRelaxedMath) &&
-        (funcName.startswith(cosBuiltinName) || funcName.startswith(sinBuiltinName))) {
+        (funcName.starts_with(cosBuiltinName) || funcName.starts_with(sinBuiltinName))) {
       for (auto Users : pFunc->users()) {
         if (auto CI = dyn_cast<CallInst>(Users)) {
           IRBuilder<> builder(CI);
@@ -1231,9 +1231,9 @@ bool PreBIImportAnalysis::runOnModule(Module &M) {
               InstToModify.push_back(std::make_tuple(fmulInst, intValue, srcPos));
 
               std::string newName;
-              if (funcName.startswith(cosBuiltinName)) {
+              if (funcName.starts_with(cosBuiltinName)) {
                 newName = cosPiBuiltinName;
-              } else if (funcName.startswith(sinBuiltinName)) {
+              } else if (funcName.starts_with(sinBuiltinName)) {
                 newName = sinPiBuiltinName;
               }
 

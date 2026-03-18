@@ -72,10 +72,10 @@ std::unique_ptr<MemoryBuffer> vcbGetFile(StringRef fileName) {
 //      static unsigned char VCEmulation64RawDataPLTF1 = { ... }
 //
 //      llvm::StringRef getVCEmulation64RawDataImpl(llvm::StringRef CPUStr) {
-//        if (CPUStr.equals("PLTF_A") || ... )
+//        if (CPUStr == ("PLTF_A") || ... )
 //          return {reinterpret_cast<const char*>(VCEmulation64RawDataPLTF0),
 //                  VCEmulation64RawDataPLTF0_size};
-//        if (CPUStr.equals("PLTF_B") || ... )
+//        if (CPUStr == ("PLTF_B") || ... )
 //          return ...
 //        ...
 //      }
@@ -127,7 +127,7 @@ void generateBifSelectionProcedure(
     std::vector<std::string> PlatformCompareExpressions;
     llvm::transform(PltfList, std::back_inserter(PlatformCompareExpressions),
                     [](const auto &Pltf) {
-                      return (Twine("CPUStr.equals(") +
+                      return (Twine("CPUStr == (") +
                               renderPlatformLiteral(Pltf) + ")")
                           .str();
                     });

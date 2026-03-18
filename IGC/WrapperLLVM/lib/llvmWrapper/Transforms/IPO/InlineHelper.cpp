@@ -169,7 +169,7 @@ void mergeInlinedArrayAllocas(Function *Caller, InlineFunctionInfo &IFI, Inlined
         if (auto *MDV = MetadataAsValue::getIfExists(AI->getContext(), L))
           for (User *U : MDV->users())
             if (DbgDeclareInst *DDI = dyn_cast<DbgDeclareInst>(U))
-              DDI->moveBefore(AvailableAlloca->getNextNode());
+              DDI->insertBefore(*AvailableAlloca->getNextNode());
 
       AI->replaceAllUsesWith(AvailableAlloca);
 

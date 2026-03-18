@@ -199,7 +199,7 @@ void PreprocessSPVIR::removePointerAnnotations(Module &M) {
       if (!CI)
         continue;
       auto *Callee = CI->getCalledFunction();
-      if (!Callee || !Callee->getName().startswith("llvm.ptr.annotation."))
+      if (!Callee || !Callee->getName().starts_with("llvm.ptr.annotation."))
         continue;
 
       // @llvm.ptr.annotation returns its first operand (the annotated pointer)
@@ -253,7 +253,7 @@ static void fixKernelArgBaseTypes(Module &M) {
       StringRef Ty = TyStr->getString();
       StringRef Base = BaseStr->getString();
 
-      if (Ty.endswith("_t") && Ty != Base) {
+      if (Ty.ends_with("_t") && Ty != Base) {
         NeedPatch = true;
         NewBase.push_back(MDString::get(Ctx, Ty));
       } else {

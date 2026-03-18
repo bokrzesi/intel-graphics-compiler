@@ -115,7 +115,7 @@ void SerializePrintMetaDataPass::CollectValueMD(llvm::Value *Val) {
 
       if (auto callInstr = llvm::dyn_cast<llvm::CallInst>(instr)) {
         if (auto callFunc = callInstr->getCalledFunction()) {
-          if (callFunc->getName().startswith("llvm.")) {
+          if (callFunc->getName().starts_with("llvm.")) {
             for (unsigned i = 0; i < instr->getNumOperands(); ++i) {
               if (auto valAsMD = llvm::dyn_cast<llvm::MetadataAsValue>(instr->getOperand(i))) {
                 CollectInsideMD(valAsMD->getMetadata());

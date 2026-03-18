@@ -32,7 +32,7 @@ struct IntrinsicComments {
 
 IntrinsicComments getIntrinsicComments(ID id);
 
-/// Intrinsic::getDeclaration(M, ID) - Create or insert an LLVM Function
+/// Intrinsic::getOrInsertDeclaration(M, ID) - Create or insert an LLVM Function
 /// declaration for an intrinsic, and return it.
 ///
 /// The OverloadedTys parameter is for intrinsics with overloaded types
@@ -57,7 +57,7 @@ Function *getDeclaration(Module *M, ID id, ArrayRef<Type *> OverloadedTys = {},
 
 // Override of isIntrinsic method defined in Function.h
 inline const char *getGenIntrinsicPrefix() { return "llvm.genx."; }
-inline bool isIntrinsic(const Function *CF) { return (CF->getName().startswith(getGenIntrinsicPrefix())); }
+inline bool isIntrinsic(const Function *CF) { return (CF->getName().starts_with(getGenIntrinsicPrefix())); }
 ID getIntrinsicID(const Function *F, bool useContextWrapper = true);
 
 } // namespace GenISAIntrinsic

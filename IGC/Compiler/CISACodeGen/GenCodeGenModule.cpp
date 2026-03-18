@@ -133,7 +133,7 @@ void GenXCodeGenModule::detectUnpromotableFunctions(Module *pM) {
   // Find functions that have uses of "localSLM" globals
   for (auto gi = pM->global_begin(), ge = pM->global_end(); gi != ge; gi++) {
     GlobalVariable *GV = dyn_cast<GlobalVariable>(gi);
-    if (GV && GV->hasSection() && GV->getSection().equals("localSLM")) {
+    if (GV && GV->hasSection() && GV->getSection()  == "localSLM") {
       for (auto user : GV->users()) {
         if (Instruction *U = dyn_cast<Instruction>(user)) {
           Function *pF = U->getParent()->getParent();
@@ -186,7 +186,7 @@ void GenXCodeGenModule::processFunction(Function &F) {
 
   std::vector<llvm::Function *> Callers;
   if (IGC_IS_FLAG_ENABLED(StackOverflowDetection)) {
-    if (F.getName().equals("__stackoverflow_detection")) {
+    if (F.getName()  == "__stackoverflow_detection") {
       // Mark all stack calls as users of this detection function.
       // It will be used as a subroutine, so it needs to be cloned for
       // each of stack call functions.
@@ -1111,7 +1111,7 @@ namespace {
 
 #if LLVM_VERSION_MAJOR > 16 && !defined(IGC_LLVM_TRUNK_REVISION)
 AAResults createLegacyPMAAResults(Pass &P, Function &F, BasicAAResult &BAR) {
-  AAResults AAR(P.getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F));
+  AAResults AAR(P.getAnalysis<TargetLibraryInfoWrapperPass>().getTLI());
   AAR.addAAResult(BAR);
 
   // Populate the results with the other currently available AAs.
@@ -1129,7 +1129,7 @@ AAResults createLegacyPMAAResults(Pass &P, Function &F, BasicAAResult &BAR) {
 }
 
 BasicAAResult createLegacyPMBasicAAResult(Pass &P, Function &F) {
-  return BasicAAResult(F.getParent()->getDataLayout(), F, P.getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F),
+  return BasicAAResult(F.getParent()->getDataLayout(), F, P.getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(),
                        P.getAnalysis<AssumptionCacheTracker>().getAssumptionCache(F));
 }
 
@@ -1231,7 +1231,7 @@ bool SubroutineInliner::inlineCalls(CallGraphSCC &SCC) {
   ACT = &getAnalysis<AssumptionCacheTracker>();
   PSI = &getAnalysis<ProfileSummaryInfoWrapperPass>().getPSI();
   GetTLI = [&](Function &F) -> const TargetLibraryInfo & {
-    return getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);
+    return getAnalysis<TargetLibraryInfoWrapperPass>().getTLI();
   };
   auto GetAssumptionCache = [&](Function &F) -> AssumptionCache & { return ACT->getAssumptionCache(F); };
 #if LLVM_VERSION_MAJOR >= 22

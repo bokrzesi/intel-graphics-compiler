@@ -1544,7 +1544,7 @@ Value *RTBuilder::getGlobalBufferPtrForSlot(IGC::ADDRESS_SPACE Addrspace, Value 
 
   auto *offset = CreateMul(slot, getInt32(IGC::Align(sizeof(RayDispatchGlobalData), IGC::RTGlobalsAlign)));
 
-  auto *globalBufferPtr = CreateBitCast(mainGlobalBufferPtr, getInt8PtrTy(ADDRESS_SPACE_CONSTANT));
+  auto *globalBufferPtr = CreateBitCast(mainGlobalBufferPtr, getPtrTy(ADDRESS_SPACE_CONSTANT));
   globalBufferPtr = CreateInBoundsGEP(getInt8Ty(), globalBufferPtr, offset);
   globalBufferPtr = CreateBitCast(globalBufferPtr, mainGlobalBufferPtr->getType(), VALUE_NAME("globalBuffer[]"));
 
@@ -1618,7 +1618,7 @@ enum class RaytracingType {
 // will later be updated to null values with the actual types.
 NamedMDNode *initTypeMD(Module &M, uint32_t NumEntries) {
   auto *TypesMD = M.getOrInsertNamedMetadata(RaytracingTypesMDName);
-  auto *Val = UndefValue::get(Type::getInt8PtrTy(M.getContext()));
+  auto *Val = UndefValue::get(PointerType::get(Type::getInt8Ty(M.getContext()), 0));
   auto *Node = MDNode::get(M.getContext(), ConstantAsMetadata::get(Val));
 
   for (uint32_t i = 0; i < NumEntries; i++)
@@ -1791,9 +1791,9 @@ Instruction *RTBuilder::getEntryFirstInsertionPointInBlock(BasicBlock &block,
   return curInsertPoint;
 }
 
-Type *RTBuilder::getInt64PtrTy(unsigned int AddrSpace) const { return Type::getInt64PtrTy(this->Context, AddrSpace); }
+Type *RTBuilder::getInt64PtrTy(unsigned int AddrSpace) const { return PointerType::get(Type::getInt64Ty(this->Context), AddrSpace); }
 
-Type *RTBuilder::getInt32PtrTy(unsigned int AddrSpace) const { return Type::getInt32PtrTy(this->Context, AddrSpace); }
+Type *RTBuilder::getInt32PtrTy(unsigned int AddrSpace) const { return PointerType::get(Type::getInt32Ty(this->Context), AddrSpace); }
 
 IGC::RTMemoryStyle RTBuilder::getMemoryStyle() const { return Ctx.getModuleMetaData()->rtInfo.MemStyle; }
 
@@ -1835,12 +1835,12 @@ GenIntrinsicInst *RTBuilder::createDummyInstID(Value *pSrcVal) {
 }
 
 CallInst *RTBuilder::ctlz(Value *V) {
-  auto *Ctlz = Intrinsic::getDeclaration(GetInsertBlock()->getModule(), Intrinsic::ctlz, V->getType());
+  auto *Ctlz = Intrinsic::getOrInsertDeclaration(GetInsertBlock()->getModule(), Intrinsic::ctlz, V->getType());
   return CreateCall2(Ctlz, V, getFalse(), VALUE_NAME("lzd"));
 }
 
 CallInst *RTBuilder::cttz(Value *V) {
-  auto *Cttz = Intrinsic::getDeclaration(GetInsertBlock()->getModule(), Intrinsic::cttz, V->getType());
+  auto *Cttz = Intrinsic::getOrInsertDeclaration(GetInsertBlock()->getModule(), Intrinsic::cttz, V->getType());
   return CreateCall2(Cttz, V, getFalse(), VALUE_NAME("cttz"));
 }
 

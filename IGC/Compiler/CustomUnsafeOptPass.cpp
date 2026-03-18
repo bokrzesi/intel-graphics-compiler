@@ -55,6 +55,7 @@ SPDX-License-Identifier: MIT
 #include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/Analysis/LoopPass.h>
 #include "llvm/IR/DebugInfo.h"
+#include "llvm/IR/DebugProgramInstruction.h"
 #include "common/LLVMWarningsPop.hpp"
 #include "llvmWrapper/IR/IntrinsicInst.h"
 #include "llvmWrapper/IR/Function.h"
@@ -333,10 +334,10 @@ bool CustomUnsafeOptPass::visitBinaryOperatorFmulFaddPropagation(BinaryOperator 
     return false;
   }
 
-  instBase[1] = instBase[0]->getNextNonDebugInstruction();
+  instBase[1] = instBase[0]->getNextNode();
 
   if (instBase[1] && instBase[1]->getOpcode() != opcode) {
-    instBase[1] = instBase[1]->getNextNonDebugInstruction();
+    instBase[1] = instBase[1]->getNextNode();
   }
 
   if (instBase[1] == nullptr || instBase[1]->getOpcode() != opcode ||
@@ -354,10 +355,10 @@ bool CustomUnsafeOptPass::visitBinaryOperatorFmulFaddPropagation(BinaryOperator 
     matchPattern1 = true;
   }
   for (int i = 2; i < 4; i++) {
-    instBase[i] = instBase[i - 1]->getNextNonDebugInstruction();
+    instBase[i] = instBase[i - 1]->getNextNode();
 
     if (instBase[i] && instBase[i - 1]->getOpcode() != instBase[i]->getOpcode()) {
-      instBase[i] = instBase[i]->getNextNonDebugInstruction();
+      instBase[i] = instBase[i]->getNextNode();
     }
 
     if (!instBase[i] || instBase[i]->getOpcode() != opcode ||
@@ -1042,14 +1043,25 @@ bool CustomUnsafeOptPass::visitBinaryOperatorNegateMultiply(BinaryOperator &I) {
               const DebugLoc &DL = NewfmulInst->getDebugLoc();
               fsubInstr->setDebugLoc(DL);
               auto *Val = static_cast<Value *>(fmulInst);
+#if LLVM_VERSION_MAJOR >= 22
+              SmallVector<DbgVariableRecord *, 1> DbgValues;
+              llvm::findDbgValues(Val, DbgValues);
+              for (auto DV : DbgValues) {
+                DIExpression *OldExpr = DV->getExpression();
+                DIExpression *NewExpr =
+                    DIExpression::append(OldExpr, {dwarf::DW_OP_constu, 0, dwarf::DW_OP_swap, dwarf::DW_OP_minus});
+                DV->setExpression(NewExpr);
+              }
+#else
               SmallVector<DbgValueInst *, 1> DbgValues;
-              llvm::findDbgValues(DbgValues, Val);
+              llvm::findDbgValues(Val, DbgValues);
               for (auto DV : DbgValues) {
                 DIExpression *OldExpr = DV->getExpression();
                 DIExpression *NewExpr =
                     DIExpression::append(OldExpr, {dwarf::DW_OP_constu, 0, dwarf::DW_OP_swap, dwarf::DW_OP_minus});
                 IGCLLVM::setExpression(DV, NewExpr);
               }
+#endif
             }
           }
         }
@@ -1214,7 +1226,7 @@ bool CustomUnsafeOptPass::visitBinaryOperatorDivRsq(BinaryOperator &I) {
       if (ConstantFP *fp0 = dyn_cast<ConstantFP>(I.getOperand(0))) {
         llvm::IRBuilder<> builder(I.getContext());
         llvm::CallInst *sqrt_call = llvm::IntrinsicInst::Create(
-            llvm::Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::sqrt, builder.getFloatTy()),
+            llvm::Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::sqrt, builder.getFloatTy()),
             genIntr->getOperand(0), "", &I);
 
         if (fp0->isExactlyValue(1.0)) {
@@ -2064,7 +2076,7 @@ void CustomUnsafeOptPass::strengthReducePowOrExpLog(IntrinsicInst *intrin, Value
   irb.setFastMathFlags(intrin->getFastMathFlags());
   if (exponent == ConstantFP::get(exponent->getType(), 0.5)) {
     // pow(x, 0.5) -> sqrt(x)
-    llvm::Function *sqrtIntr = llvm::Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::sqrt, base->getType());
+    llvm::Function *sqrtIntr = llvm::Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::sqrt, base->getType());
     llvm::CallInst *sqrt = irb.CreateCall(sqrtIntr, base);
     intrin->replaceAllUsesWith(sqrt);
     collectForErase(*intrin);
@@ -2111,8 +2123,8 @@ void CustomUnsafeOptPass::strengthReducePowOrExpLog(IntrinsicInst *intrin, Value
     collectForErase(*intrin);
   } else if (isPow && IGC_IS_FLAG_ENABLED(EnablePowToLogMulExp)) {
     // pow(x, y) -> exp2(log2(x) * y)
-    Function *logf = Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::log2, base->getType());
-    Function *expf = Intrinsic::getDeclaration(m_ctx->getModule(), Intrinsic::exp2, base->getType());
+    Function *logf = Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::log2, base->getType());
+    Function *expf = Intrinsic::getOrInsertDeclaration(m_ctx->getModule(), Intrinsic::exp2, base->getType());
     CallInst *logv = irb.CreateCall(logf, base);
     Value *mulv = irb.CreateFMul(logv, exponent);
     CallInst *expv = irb.CreateCall(expf, mulv);
