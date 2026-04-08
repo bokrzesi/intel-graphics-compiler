@@ -116,6 +116,7 @@ elseif(IGC_BUILD__LLVM_PREBUILDS)
     Core
     DebugInfoDWARF
     Demangle
+    DTLTO
     GlobalISel
     LTO
     MC
